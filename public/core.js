@@ -2,7 +2,7 @@
 
 var app = angular.module('Tau-Subtitles', []);
 
-app.controller('subtitleTableController',function subtitleTableController($scope) {
+app.controller('subtitleTableController',function subtitleTableController($scope, $http) {
 	var subtitle = {
 	    startTime:0,
 	    endTime:-1,
@@ -67,12 +67,22 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 3) {
 			$scope.subtitles.splice(i,1);
 		}
+
+		if (caseNum == 4) {	
+			$scope.saveFile();
+		}
 	}
 
 	jwplayer().on('captionsChanged', function(){
 		jwplayer().setCurrentCaptions(0);
-
 	});
+
+	$scope.saveFile = function(){
+        var data = {id:"YairLevi1", txt :JSON.stringify($scope.subtitles)};
+        $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
+            
+        })
+	}
 });
 
 
@@ -104,7 +114,15 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.which == 13) { // ctrl + enter - case #3
+            if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + s - case #4
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",4)");
+                });
+
+                event.preventDefault();
+            }
+
+            if(event.ctrlKey && event.which == 13) { // ctrl + enter
             	var playerState = jwplayer().getState();
             	if (playerState == "idle" || playerState == "paused"){
             		jwplayer().play();

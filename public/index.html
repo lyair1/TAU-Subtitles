@@ -20,7 +20,7 @@
 		<div class="container-fluid">
 		  <div class="jumbotron">
 		    <h1>Subtitles creator for TAU</h1>
-		    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Remove Row - 'ctrl + d'</p>
+		    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Remove Row - 'ctrl + d' , Save Subtitles = 'ctrl + shift + s</p>
 		  </div>
 
 		 <div class="row">
@@ -45,7 +45,7 @@
 				      <tr class="success" ng-repeat="sub in subtitles track by $index">
 				        <td>{{ticksToTimeString(sub.startTime)}}</td>
 				        <td>{{ticksToTimeString(sub.endTime)}}</td>
-				        <td><input type="text" class="form-control" id="usr" value= {{sub.text}} my-enter="keyPressedFromTextBox($index" ></td>
+				        <td><input type="text" class="form-control" id="usr" ng-model="sub.text" value= {{sub.text}} my-enter="keyPressedFromTextBox($index" ></td>
 				      </tr>
 				    </tbody>
 				  </table>

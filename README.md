@@ -11,3 +11,8 @@ Tau-Subtitles
 2. Install the application: `npm install`
 3. Start the server: `node server.js`
 4. View in browser at `http://localhost:8080`
+
+
+## Helpfull links
+
+- [JWPlayer JS API] (https://developer.jwplayer.com/jw-player/docs/developer-guide/api/javascript_api_reference)
