@@ -6,7 +6,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	var subtitle = {
 	    startTime:0,
 	    endTime:-1,
-	    text:""
+	    txt:""
 	};
 
 	$scope.subtitles = [subtitle];
@@ -53,7 +53,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			var newSub = {
 			    startTime:position,
 			    endTime:-1,
-			    text:""
+			    txt:""
 			};
 
 			if (i < $scope.subtitles.length) {

@@ -38,21 +38,34 @@ var Subtitles = mongoose.model('Subtitles', {
 
 // // api ---------------------------------------------------------------------
 app.post('/api/saveSrtFileForUser', function(req, res) {
-	var user_id = req.body.userId;
+	var userId = req.body.userId;
   var text = req.body.txt;
   var videoId = req.body.videoId
-  var dir = getSrtFilePath(user_id, videoId);
-  var filePath = path.join(dir, user_id + ".srt");
+  var dir = getOutputFilePath(userId, videoId);
+  var jsonFilePath = path.join(dir, userId + ".json");
+  var srtFilePath = path.join(dir, userId + ".srt");
 
-  fs.createFile(filePath, function(err) {
-      console.log(err); //null 
-      //file has now been created, including the directory it is to be placed in
-      fs.writeFile(path.join(dir, user_id + ".srt"), text, function(err) {
+  fs.createFile(jsonFilePath, function(err) {
       if(err) {
         return console.log(err);
       }
 
-      console.log("The file was saved!");
+      //file has now been created, including the directory it is to be placed in
+      fs.writeFile(jsonFilePath, text, function(err) {
+      if(err) {
+        return console.log(err);
+      }
+
+      console.log("Json file was saved!");
+      jsonObj = JSON.parse(text);
+      console.log(JSON.stringify(jsonObj));
+      fs.writeFile(srtFilePath, generateSrtFile(jsonObj), function(err) {
+        if(err) {
+          return console.log(err);
+          
+        }
+        console.log("Srt file was saved!");
+      });
     });
   });
 
@@ -109,6 +122,54 @@ console.log("App listening on port 8080");
 
 // Private functions
 
-function getSrtFilePath(userId, videoId){
+function getOutputFilePath(userId, videoId){
   return "./Subtitles/" + "/" + videoId + "/" + userId + "_Subs";
 }
+
+function generateSrtFile(subObj){
+  var srtFile = "";
+  var i = 1;
+
+  subObj.reverse().forEach(function(line) {
+    srtFile += i + "\n";
+    srtFile += ticksToTimeString(line.startTime) + " ->> " + ticksToTimeString(line.endTime) + "\n";
+    srtFile += line.txt + "\n";
+
+    srtFile += "\n\n";
+
+    i++; 
+  });
+
+  return srtFile;
+}
+
+
+function ticksToTimeString(ticks){
+    if (ticks < 0) {
+      return "--:--:--";
+    };
+
+    var milisecond = parseInt((ticks*1000)%1000); 
+    var sec = parseInt(ticks%60);
+    var min = parseInt(((ticks%3600)/60));
+    var hour = parseInt((ticks/3600));
+
+    var secStr = "" + sec;
+    var minStr = "" + min;
+    var hourStr = "" + hour;
+    var milisecondStr = "," + milisecond;
+
+    if (sec < 10) {
+      secStr = "0" + sec;
+    };
+
+    if (min < 10) {
+      minStr = "0" + min;
+    };
+
+    if (hour < 10) {
+      hourStr = "0" + hour;
+    };
+
+    return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
+  };
