@@ -6,7 +6,8 @@ var mongoose = require('mongoose');                     // mongoose for mongodb
 var morgan = require('morgan');             // log requests to the console (express4)
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-var fs = require('fs');
+var fs = require('fs-extra');
+var path = require('path');
 
 // Cross domain
 
@@ -37,22 +38,26 @@ var Subtitles = mongoose.model('Subtitles', {
 
 // // api ---------------------------------------------------------------------
 app.post('/api/saveSrtFileForUser', function(req, res) {
-	var user_id = req.body.id;
-    var text = req.body.txt;
-    var dir = "./Subtitles/" + user_id + "_Subs";
+	var user_id = req.body.userId;
+  var text = req.body.txt;
+  var videoId = req.body.videoId
+  var dir = getSrtFilePath(user_id, videoId);
+  var filePath = path.join(dir, user_id + ".srt");
 
-    if (!fs.existsSync(dir)){
-    	fs.mkdirSync(dir);
-	}
+  fs.createFile(filePath, function(err) {
+      console.log(err); //null 
+      //file has now been created, including the directory it is to be placed in
+      fs.writeFile(path.join(dir, user_id + ".srt"), text, function(err) {
+      if(err) {
+        return console.log(err);
+      }
 
-    fs.writeFile(dir + "/" + user_id + ".srt", text, function(err) {
-			if(err) {
-				return console.log(err);
-			}
+      console.log("The file was saved!");
+    });
+  });
 
-			console.log("The file was saved!");
-		}); 
 });
+
 
 // // create todo and send back all todos after creation
 // app.post('/api/todos', function(req, res) {
@@ -100,3 +105,10 @@ app.get('*', function(req, res) {
 // listen (start app with node server.js) ======================================
 app.listen(8080);
 console.log("App listening on port 8080");
+
+
+// Private functions
+
+function getSrtFilePath(userId, videoId){
+  return "./Subtitles/" + "/" + videoId + "/" + userId + "_Subs";
+}

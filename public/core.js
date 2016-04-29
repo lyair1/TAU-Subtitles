@@ -11,18 +11,21 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.subtitles = [subtitle];
 
+	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
 		if (ticks < 0) {
 			return "--:--:--";
 		};
 
-		var sec = parseInt((ticks%60));
+		var milisecond = parseInt((ticks*1000)%1000); 
+		var sec = parseInt(ticks%60);
 		var min = parseInt(((ticks%3600)/60));
 		var hour = parseInt((ticks/3600));
 
 		var secStr = "" + sec;
 		var minStr = "" + min;
 		var hourStr = "" + hour;
+		var milisecondStr = "." + milisecond;
 
 		if (sec < 10) {
 			secStr = "0" + sec;
@@ -36,7 +39,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			hourStr = "0" + hour;
 		};
 
-		return hourStr + ":" + minStr + ":" + secStr;
+		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
@@ -71,6 +74,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 4) {	
 			$scope.saveFile();
 		}
+
+		if (caseNum == 5) {	
+			$scope.subtitles[i].startTime = position;
+		}
 	}
 
 	jwplayer().on('captionsChanged', function(){
@@ -78,7 +85,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	});
 
 	$scope.saveFile = function(){
-        var data = {id:"YairLevi1", txt :JSON.stringify($scope.subtitles)};
+        var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles)};
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
             
         })
@@ -90,7 +97,7 @@ app.directive('myEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
         	// http://www.cambiaresearch.com/articles/15/javascript-key-codes
-            if(event.ctrlKey && event.which == 83) { // ctrl + s - case #1
+            if(event.ctrlKey && event.which == 83 && !event.shiftKey) { // ctrl + s - case #1
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter + ",1)");
                 });
@@ -117,6 +124,14 @@ app.directive('myEnter', function () {
             if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + s - case #4
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",4)");
+                });
+
+                event.preventDefault();
+            }
+
+            if(event.ctrlKey && event.which == 71) { // ctrl + g - case #5
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",5)");
                 });
 
                 event.preventDefault();
