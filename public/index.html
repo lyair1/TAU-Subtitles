@@ -16,41 +16,47 @@
 </head>
 
 <body>
-	<div ng-app="Tau-Subtitles">
-		<div class="container-fluid">
-		  <div class="jumbotron">
-		    <h1>Subtitles creator for TAU</h1>
-		    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Set Start Time - 'ctrl + g' , Remove Row - 'ctrl + d' , Save Subtitles = 'ctrl + shift + s</p>
-		  </div>
+	<div ng-app="Tau-Subtitles" ng-controller="subtitleTableController">
+		<div class="container-fluid" >
+			  <div class="jumbotron">
+			    <h1>Subtitles creator for TAU</h1>
+			    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Set Start Time - 'ctrl + g' , Remove Row - 'ctrl + d' , Save Subtitles = 'ctrl + shift + s</p>
+			  </div>
 
-		 <div class="row">
-		    <div class="col-md-4">
-		        <div id="videoFrame" title="TAU Webcast video player">
-		            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
-		                <img src='./Content/Img/filmPlaceHolder.jpg'>
-		            </a>
-		        </div>
+			<div class="row">
+			    <div class="col-md-4">
+			        <div id="videoFrame" title="TAU Webcast video player">
+			            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
+			                <img src='./Content/Img/filmPlaceHolder.jpg'>
+			            </a>
+			        </div>
+				</div>
+
+				<div class="col-md-8">
+					<table class="table">
+					    <thead>
+					      <tr>
+					        <th class="col-md-1">Start Time</th>
+					        <th class="col-md-1">End Time</th>
+					        <th class="col-md-10">Text</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					      <tr class="success" ng-repeat="sub in subtitles track by $index">
+					        <td>{{ticksToTimeString(sub.startTime)}}</td>
+					        <td>{{ticksToTimeString(sub.endTime)}}</td>
+					        <td><input type="text" class="form-control" id="usr" ng-model="sub.txt" value= {{sub.text}} my-enter="keyPressedFromTextBox($index" ></td>
+					      </tr>
+					    </tbody>
+					  </table>
+				</div>
+			</div>
+			<div class="row">
+			    <div class="col-md-4 col-md-offset-4">
+			    	<td><input type="text" class="form-control" id="il" ng-model="$scope.infoline" value= {{$scope.infoline}}></td>
+				</div>
 			</div>
 
-			<div class="col-md-8">
-				<table class="table" ng-controller="subtitleTableController">
-				    <thead>
-				      <tr>
-				        <th class="col-md-1">Start Time</th>
-				        <th class="col-md-1">End Time</th>
-				        <th class="col-md-10">Text</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				      <tr class="success" ng-repeat="sub in subtitles track by $index">
-				        <td>{{ticksToTimeString(sub.startTime)}}</td>
-				        <td>{{ticksToTimeString(sub.endTime)}}</td>
-				        <td><input type="text" class="form-control" id="usr" ng-model="sub.txt" value= {{sub.text}} my-enter="keyPressedFromTextBox($index" ></td>
-				      </tr>
-				    </tbody>
-				  </table>
-			</div>
-		</div>
 	  </div>
 	</div>
 

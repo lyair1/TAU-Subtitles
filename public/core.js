@@ -10,6 +10,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	};
 
 	$scope.subtitles = [subtitle];
+	$scope.infoLine = "csd";
 
 	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
@@ -44,8 +45,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
 		var position = jwplayer().getPosition();
-
+		$scope.infoline = "ccc"
 		if (caseNum == 1) {
+			// Adding Row
 			if ($scope.subtitles[i].endTime == -1) {
 				$scope.subtitles[i].endTime = position;
 			};
@@ -64,20 +66,40 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		};
 		
 		if (caseNum == 2) {
+			// Setting finish time
 			$scope.subtitles[i].endTime = position;
 		}
 
 		if (caseNum == 3) {
-			$scope.subtitles.splice(i,1);
+			// Removing Row
+
+			if($scope.subtitles.length > 1){
+				$scope.subtitles.splice(i,1);
+			}
+
+			if($scope.subtitles.length == 1){
+				$scope.subtitles[0].startTime = 0;
+				$scope.subtitles[0].endTime = -1;
+				$scope.subtitles[0].txt = "";
+			}
 		}
 
 		if (caseNum == 4) {	
+			// saving file
+			$scope.sortSubtitles(false);
+			if($scope.makeSubtitlesTimesValid()){
+				// We changed the times of some subtitle
+				$scope.infoline = "Times of overlapping subtitles were fixed. File saved.";
+			}
+
+			$scope.sortSubtitles(true);
 			$scope.saveFile();
 		}
 
-		if (caseNum == 5) {	
+		if (caseNum == 5) {
+			// Setting start time
 			$scope.subtitles[i].startTime = position;
-			$scope.subtitles.sort(function(a,b) { return a.startTime - b.startTime})
+			$scope.sortSubtitles(true);
 		}
 	}
 
@@ -88,9 +110,47 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.saveFile = function(){
         var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles)};
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
-            
-        })
+			$scope.infoline = "File saved.";
+        });
 	}
+
+	$scope.sortSubtitles = function(backwards){
+		// Sorting so that latest subtitle is the highest one, for user convinience
+		$scope.subtitles.sort(function(a,b) { 
+			if(backwards){
+				return b.startTime - a.startTime;
+			}
+
+			return a.startTime - b.startTime;
+		});
+	}
+
+	// returns true if any times was changed
+	$scope.makeSubtitlesTimesValid = function(){
+		var changedTimes = false;
+		var subLen = $scope.subtitles.length;
+
+		if(subLen < 2){
+			return false;
+		}
+
+		if($scope.subtitles[subLen-1].endTime < 0){
+			// Set last subtitle to 1 sec period if not given
+			changedTimes = true;
+			$scope.subtitles[subLen-1].endTime = $scope.subtitles[subLen-1].startTime + 1;
+		}
+
+		for (var i = 0; i < $scope.subtitles.length-1; i++) 
+		{
+		    if($scope.subtitles[i].endTime < 0 || $scope.subtitles[i].endTime > $scope.subtitles[i+1].startTime){
+		    	changedTimes = true;
+		    	$scope.subtitles[i].endTime = $scope.subtitles[i+1].startTime;
+		    }
+		}
+
+		return changedTimes;
+	}
+
 });
 
 
@@ -122,7 +182,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + s - case #4
+            if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + shift + s - case #4
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",4)");
                 });
