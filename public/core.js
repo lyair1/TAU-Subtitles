@@ -77,6 +77,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 5) {	
 			$scope.subtitles[i].startTime = position;
+			$scope.subtitles.sort(function(a,b) { return a.startTime - b.startTime})
 		}
 	}
 
