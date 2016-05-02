@@ -10,7 +10,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	};
 
 	$scope.subtitles = [subtitle];
-	$scope.infoLine = "csd";
+	$scope.messages_0 = [];
+	$scope.messages_1 = [];
+	$scope.messages_2 = [];
+	$scope.messages_3 = [];
 
 	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
@@ -45,7 +48,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
 		var position = jwplayer().getPosition();
-		$scope.infoline = "ccc"
 		if (caseNum == 1) {
 			// Adding Row
 			if ($scope.subtitles[i].endTime == -1) {
@@ -89,7 +91,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.sortSubtitles(false);
 			if($scope.makeSubtitlesTimesValid()){
 				// We changed the times of some subtitle
-				$scope.infoline = "Times of overlapping subtitles were fixed. File saved.";
+				$scope.addAlertMessage("Times of overlapping subtitles were fixed. File saved.", 0);
 			}
 
 			$scope.sortSubtitles(true);
@@ -110,7 +112,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.saveFile = function(){
         var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles)};
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
-			$scope.infoline = "File saved.";
+			$scope.addAlertMessage("File saved.", 0);
         });
 	}
 
@@ -149,6 +151,26 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		}
 
 		return changedTimes;
+	}
+
+	// level:1 - success , 2- warning, 3 - alert
+	$scope.addAlertMessage = function(text, level){
+		$scope.messages_0 = [];
+		$scope.messages_1 = [];
+		$scope.messages_2 = [];
+		$scope.messages_3 = [];
+		if (level == 0){
+			$scope.messages_0.push({message : text});	
+		} 
+		if (level == 1){
+			$scope.messages_1.push({message : text});	
+		} 
+		if (level == 2){
+			$scope.messages_2.push({message : text});	
+		} 
+		if (level == 3){
+			$scope.messages_3.push({message : text});	
+		} 
 	}
 
 });

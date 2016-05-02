@@ -8,6 +8,9 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var fs = require('fs-extra');
 var path = require('path');
+var cmd=require('node-cmd');
+var baseDir = "";
+var fileSystemDir = "C:\\SubGit\\";
 
 // Cross domain
 
@@ -41,7 +44,8 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 	var userId = req.body.userId;
   var text = req.body.txt;
   var videoId = req.body.videoId
-  var dir = getOutputFilePath(userId, videoId);
+  var dir = fileSystemDir + getOutputFilePath(userId, videoId);
+  var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var jsonFilePath = path.join(dir, userId + ".json");
   var srtFilePath = path.join(dir, userId + ".srt");
 
@@ -65,6 +69,14 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
           
         }
         console.log("Srt file was saved!");
+        console.log("Commiting with git");
+        cmd.get(
+        'cd ' + gitVideoDir + '&& git add . && git commit -am "comming in the name of:' + userId + '"',
+        function(data){
+            console.log('git cmd finished : ',data)
+            res.send();
+        }
+        );
       });
     });
   });
@@ -119,11 +131,29 @@ app.get('*', function(req, res) {
 app.listen(8080);
 console.log("App listening on port 8080");
 
+cmd.get(
+        'chdir', // Change to 'pwd' in linux
+        function(data){
+            console.log('the current working dir is : ',data)
+            baseDir = data;
+        });
+
+cmd.get(
+        'mkdir ' + fileSystemDir + ' && cd ' + fileSystemDir + ' && git init', // Change to 'pwd' in linux
+        function(data){
+            console.log('created git repository : ',data)
+            baseDir = data;
+        });
+
 
 // Private functions
 
 function getOutputFilePath(userId, videoId){
-  return "./Subtitles/" + "/" + videoId + "/" + userId + "_Subs";
+  return getOutputVideoFolder(videoId) + "/" + userId + "_Subs";
+}
+
+function getOutputVideoFolder(videoId){
+  return "/Subtitles/" + "/" + videoId;  
 }
 
 function generateSrtFile(subObj){

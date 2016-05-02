@@ -13,11 +13,28 @@
 	  <meta name="viewport" content="width=device-width, initial-scale=1">
 	  <meta charset="utf-8">
 	  <script src="core.js"></script>
+	  <link rel="stylesheet" href="/includes/style.css" />
 </head>
 
 <body>
 	<div ng-app="Tau-Subtitles" ng-controller="subtitleTableController">
-		<div class="container-fluid" >
+	    <div ng-repeat="msg in messages_0" class="alerts alert alert-success fade in">
+	  		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    		<strong>Success!</strong> {{msg.message}}
+		</div>
+		<div ng-repeat="msg in messages_1" class="alerts alert alert-info fade in">
+	  		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    		<strong>Success!</strong> {{msg.message}}
+		</div>
+		<div ng-repeat="msg in messages_2" class="alerts alert alert-warning fade in">
+	  		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    		<strong>Success!</strong> {{msg.message}}
+		</div>
+		<div ng-repeat="msg in messages_3" class="alerts alert alert-danger fade in">
+	  		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    		<strong>Success!</strong> {{msg.message}}
+		</div>
+		<div class="container-fluid">
 			  <div class="jumbotron">
 			    <h1>Subtitles creator for TAU</h1>
 			    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Set Start Time - 'ctrl + g' , Remove Row - 'ctrl + d' , Save Subtitles = 'ctrl + shift + s</p>
@@ -51,12 +68,6 @@
 					  </table>
 				</div>
 			</div>
-			<div class="row">
-			    <div class="col-md-4 col-md-offset-4">
-			    	<td><input type="text" class="form-control" id="il" ng-model="$scope.infoline" value= {{$scope.infoline}}></td>
-				</div>
-			</div>
-
 	  </div>
 	</div>
 
