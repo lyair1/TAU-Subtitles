@@ -71,7 +71,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
         console.log("Srt file was saved!");
         console.log("Commiting with git");
         cmd.get(
-        'cd ' + gitVideoDir + '&& git add . && git commit -am "comming in the name of:' + userId + '"',
+        'cd ' + gitVideoDir + '&& git add . && git commit -am "commiting in the name of:' + userId + '"',
         function(data){
             console.log('git cmd finished : ',data)
             res.send();

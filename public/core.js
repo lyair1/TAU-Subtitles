@@ -75,14 +75,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 3) {
 			// Removing Row
 
-			if($scope.subtitles.length > 1){
-				$scope.subtitles.splice(i,1);
-			}
 
 			if($scope.subtitles.length == 1){
 				$scope.subtitles[0].startTime = 0;
 				$scope.subtitles[0].endTime = -1;
 				$scope.subtitles[0].txt = "";
+			}
+
+			if($scope.subtitles.length > 1){
+				$scope.subtitles.splice(i,1);
 			}
 		}
 
