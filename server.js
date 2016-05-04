@@ -44,6 +44,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 	var userId = req.body.userId;
   var text = req.body.txt;
   var videoId = req.body.videoId
+
   var dir = fileSystemDir + getOutputFilePath(userId, videoId);
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var jsonFilePath = path.join(dir, userId + ".json");
@@ -63,6 +64,12 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
       console.log("Json file was saved!");
       jsonObj = JSON.parse(text);
       console.log(JSON.stringify(jsonObj));
+      
+      console.log('added : ', req.body.added);
+      console.log('deleted : ', req.body.deleted);
+      console.log('edited : ', req.body.edited);
+
+
       fs.writeFile(srtFilePath, generateSrtFile(jsonObj), function(err) {
         if(err) {
           return console.log(err);

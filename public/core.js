@@ -3,7 +3,16 @@
 var app = angular.module('Tau-Subtitles', []);
 
 app.controller('subtitleTableController',function subtitleTableController($scope, $http) {
+
+	$scope.guid = function(){
+		function s4() {
+		    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  			}
+  		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+	}
+
 	var subtitle = {
+		id:$scope.guid(),
 	    startTime:0,
 	    endTime:-1,
 	    txt:""
@@ -14,6 +23,13 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.messages_1 = [];
 	$scope.messages_2 = [];
 	$scope.messages_3 = [];
+
+	$scope.deletedIds = {};
+	$scope.addedIds = {};
+	$scope.addedIds[subtitle.id] = true;
+	$scope.editedIds = {};
+
+
 
 	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
@@ -50,15 +66,18 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		var position = jwplayer().getPosition();
 		if (caseNum == 1) {
 			// Adding Row
+
 			if ($scope.subtitles[i].endTime == -1) {
 				$scope.subtitles[i].endTime = position;
 			};
 			
 			var newSub = {
+				id:$scope.guid(),
 			    startTime:position,
 			    endTime:-1,
 			    txt:""
 			};
+			$scope.addedIds[newSub.id] = true;
 
 			if (i < $scope.subtitles.length) {
 				$scope.subtitles.splice(i, 0, newSub);
@@ -74,9 +93,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 3) {
 			// Removing Row
-
+			$scope.deletedIds[$scope.subtitles[i].id] = true;
 
 			if($scope.subtitles.length == 1){
+				$scope.subtitles[0].id = $scope.guid();
 				$scope.subtitles[0].startTime = 0;
 				$scope.subtitles[0].endTime = -1;
 				$scope.subtitles[0].txt = "";
@@ -104,6 +124,11 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.subtitles[i].startTime = position;
 			$scope.sortSubtitles(true);
 		}
+
+		if (caseNum == 100) {
+			// Editing text
+			$scope.editedIds[$scope.subtitles[i].id] = true;
+		}
 	}
 
 	jwplayer().on('captionsChanged', function(){
@@ -111,7 +136,11 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	});
 
 	$scope.saveFile = function(){
-        var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles)};
+        var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles),
+        			deleted : JSON.stringify(Object.keys($scope.deletedIds)),
+        			added : JSON.stringify(Object.keys($scope.addedIds)),
+        			edited : JSON.stringify(Object.keys($scope.editedIds))};
+
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
 			$scope.addAlertMessage("File saved.", 0);
         });
@@ -189,7 +218,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.which == 70) { // ctrl + f - case #2
+            else if(event.ctrlKey && event.which == 70) { // ctrl + f - case #2
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",2)");
                 });
@@ -197,7 +226,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.which == 68) { // ctrl + d - case #3
+            else if(event.ctrlKey && event.which == 68) { // ctrl + d - case #3
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",3)");
                 });
@@ -205,7 +234,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + shift + s - case #4
+            else if(event.ctrlKey && event.shiftKey && event.which == 83) { // ctrl + shift + s - case #4
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",4)");
                 });
@@ -213,7 +242,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.which == 71) { // ctrl + g - case #5
+            else if(event.ctrlKey && event.which == 71) { // ctrl + g - case #5
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",5)");
                 });
@@ -221,7 +250,7 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
-            if(event.ctrlKey && event.which == 13) { // ctrl + enter
+            else if(event.ctrlKey && event.which == 13) { // ctrl + enter
             	var playerState = jwplayer().getState();
             	if (playerState == "idle" || playerState == "paused"){
             		jwplayer().play();
@@ -229,6 +258,13 @@ app.directive('myEnter', function () {
             	if (playerState == "playing"){
             		jwplayer().pause();
             	}
+            }
+
+            else{
+            	// if it's not one of the above, than the user edited the text
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",100)");
+                });
             }
         });
     };
