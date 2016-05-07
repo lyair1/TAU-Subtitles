@@ -44,12 +44,13 @@ var Subtitles = mongoose.model('Subtitles', {
 // // api ---------------------------------------------------------------------
 app.post('/api/saveSrtFileForUser', function(req, res) {
 	var userId = req.body.userId;
-  var text = req.body.txt;
+  var subObject = diffSubObjectToStr(req.body.txt);
   var videoId = req.body.videoId
 
   var dir = fileSystemDir + getOutputFilePath(userId, videoId);
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var jsonFilePath = path.join(dir, userId + ".json");
+  var latestJsonFilePath = path.join(gitVideoDir, videoId + "_latest.json");
   var randString = randomstring.generate(25);
   var srtFilePath = path.join(latestHashFolder, randString + ".srt");
 
@@ -59,13 +60,13 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
       }
 
       //file has now been created, including the directory it is to be placed in
-      fs.writeFile(jsonFilePath, text, function(err) {
+      fs.writeFile(jsonFilePath, subObject, function(err) {
       if(err) {
         return console.log(err);
       }
 
       console.log("Json file was saved!");
-      jsonObj = JSON.parse(text);
+      jsonObj = JSON.parse(subObject);
       console.log(JSON.stringify(jsonObj));
       
       console.log('added : ', req.body.added);
@@ -84,7 +85,16 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
           'cd ' + gitVideoDir + '&& git add . && git commit -am "commiting in the name of:' + userId + '"',
           function(data){
               console.log('git cmd finished : ',data)
-              res.send(randString);
+
+              fs.writeFile(latestJsonFilePath, subObject, function(err) {
+                if(err) {
+                  return console.log(err);                  
+                }
+
+                console.log("Latest Json file was saved!");
+
+                res.send(randString);
+              });
           }
           );
         });
@@ -116,6 +126,29 @@ app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
   filestream.pipe(res);
 
   console.log('starting download');
+});
+
+app.get('/api/getLatestJsonSub/:videoId', function(req, res){
+  var videoId = req.params.videoId;
+  var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
+  var latestJsonFilePath = path.join(gitVideoDir, videoId + "_latest.json");
+
+  if (!fs.existsSync(latestJsonFilePath)) { 
+    console.log('video latest file does not exist');
+    var subtitle = [{
+      id:$scope.guid(),
+        startTime:0,
+        endTime:-1,
+        txt:""
+    }];
+    res.send(JSON.stringify(subtitle));
+    
+    return;
+  } 
+
+  fs.readJson(latestJsonFilePath, function(err, jsonObj) {
+      res.send(jsonObj);
+  });
 });
 
 
@@ -237,4 +270,9 @@ function ticksToTimeString(ticks){
     };
 
     return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
-  };
+};
+
+function diffSubObjectToStr(jsonStr){
+  //TODO do it
+  return jsonStr;
+}

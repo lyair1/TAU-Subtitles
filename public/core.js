@@ -10,22 +10,24 @@ app.controller('subtitleTableController',function subtitleTableController($scope
   		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 	}
 
-	var subtitle = {
-		id:$scope.guid(),
-	    startTime:0,
-	    endTime:-1,
-	    txt:""
-	};
+  	$scope.updateLatest = function(){
+		$http.get("/api/getLatestJsonSub/" + $scope.videoId).then(function(response) {
+	       	$scope.subtitles = response.data;
+	    });
+  	}
 
-	$scope.subtitles = [subtitle];
-	$scope.alerts = [];
+	$scope.userId = "FakeUser";
+	$scope.videoId = "FakeVideo";
+
+	$scope.subtitles = [];
 
 	$scope.deletedIds = {};
 	$scope.addedIds = {};
-	$scope.addedIds[subtitle.id] = true;
 	$scope.editedIds = {};
 
+	$scope.updateLatest();
 
+	$scope.alerts = [];
 
 	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
@@ -132,7 +134,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	});
 
 	$scope.saveFile = function(){
-        var data = {userId:"YairLevi1", videoId : "sampleVideo" , txt :JSON.stringify($scope.subtitles),
+        var data = {userId:$scope.userId, videoId : $scope.videoId , txt :JSON.stringify($scope.subtitles),
         			deleted : JSON.stringify(Object.keys($scope.deletedIds)),
         			added : JSON.stringify(Object.keys($scope.addedIds)),
         			edited : JSON.stringify(Object.keys($scope.editedIds))};
@@ -140,6 +142,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
 			$scope.addAlertMessage("File saved.", 'warning');
 			$scope.latestHash = data;
+			$scope.updateLatest();
         });
 	}
 
