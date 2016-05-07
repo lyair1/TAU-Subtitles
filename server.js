@@ -11,6 +11,7 @@ var path = require('path');
 var cmd=require('node-cmd');
 var baseDir = "";
 var fileSystemDir = "C:\\SubGit\\";
+var latestHashFolder = fileSystemDir + "\\hash\\";
 
 // Cross domain
 
@@ -90,6 +91,29 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 
 });
 
+app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
+  var hashCode = req.params.hashCode;
+  var fileName = hashCode + ".srt";
+
+  console.log("Got a download request to retreive srt for hashCode: " + hashCode);
+
+  var filePath = latestHashFolder + fileName;
+
+  if (!fs.existsSync(filePath)) { 
+    console.log('file does not exist');
+    res.send('fileNotExist');
+    return;
+  } 
+
+  res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
+  res.setHeader('Content-type', 'text/srt');
+
+  var filestream = fs.createReadStream(filePath);
+  filestream.pipe(res);
+
+  console.log('starting download');
+});
+
 
 // // create todo and send back all todos after creation
 // app.post('/api/todos', function(req, res) {
@@ -130,9 +154,9 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 // });
 
 // application -------------------------------------------------------------
-app.get('*', function(req, res) {
-    res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
-});
+// app.get('*', function(req, res) {
+//     res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
+// });
 
 // listen (start app with node server.js) ======================================
 app.listen(8080);
