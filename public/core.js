@@ -1,6 +1,5 @@
 // Angular Code
-
-var app = angular.module('Tau-Subtitles', []);
+var app = angular.module('Tau-Subtitles', ['ngAnimate', 'ui.bootstrap']);
 
 app.controller('subtitleTableController',function subtitleTableController($scope, $http) {
 
@@ -19,10 +18,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	};
 
 	$scope.subtitles = [subtitle];
-	$scope.messages_0 = [];
-	$scope.messages_1 = [];
-	$scope.messages_2 = [];
-	$scope.messages_3 = [];
+	$scope.alerts = [];
 
 	$scope.deletedIds = {};
 	$scope.addedIds = {};
@@ -112,7 +108,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.sortSubtitles(false);
 			if($scope.makeSubtitlesTimesValid()){
 				// We changed the times of some subtitle
-				$scope.addAlertMessage("Times of overlapping subtitles were fixed. File saved.", 0);
+				$scope.addAlertMessage("Times of overlapping subtitles were fixed. File saved.", 'warning');
 			}
 
 			$scope.sortSubtitles(true);
@@ -142,7 +138,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
         			edited : JSON.stringify(Object.keys($scope.editedIds))};
 
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
-			$scope.addAlertMessage("File saved.", 0);
+			$scope.addAlertMessage("File saved.", 'warning');
         });
 	}
 
@@ -185,23 +181,12 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	// level:1 - success , 2- warning, 3 - alert
 	$scope.addAlertMessage = function(text, level){
-		$scope.messages_0 = [];
-		$scope.messages_1 = [];
-		$scope.messages_2 = [];
-		$scope.messages_3 = [];
-		if (level == 0){
-			$scope.messages_0.push({message : text});	
-		} 
-		if (level == 1){
-			$scope.messages_1.push({message : text});	
-		} 
-		if (level == 2){
-			$scope.messages_2.push({message : text});	
-		} 
-		if (level == 3){
-			$scope.messages_3.push({message : text});	
-		} 
+		$scope.alerts.push({msg : text, type : level});    
 	}
+
+	$scope.closeAlert = function(index) {
+    	$scope.alerts.splice(index, 1);
+  	};
 
 });
 

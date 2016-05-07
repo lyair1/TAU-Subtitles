@@ -1,6 +1,6 @@
-.alerts {
-  position: absolute;
-  top: 30px;
-  left: 20px;
-  right: 20px;
+.alerts-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30%;
 }
