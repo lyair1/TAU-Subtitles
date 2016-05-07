@@ -139,6 +139,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
 			$scope.addAlertMessage("File saved.", 'warning');
+			$scope.latestHash = data;
         });
 	}
 

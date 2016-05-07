@@ -6,6 +6,7 @@ var mongoose = require('mongoose');                     // mongoose for mongodb
 var morgan = require('morgan');             // log requests to the console (express4)
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
+var randomstring = require("randomstring");
 var fs = require('fs-extra');
 var path = require('path');
 var cmd=require('node-cmd');
@@ -49,7 +50,8 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
   var dir = fileSystemDir + getOutputFilePath(userId, videoId);
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var jsonFilePath = path.join(dir, userId + ".json");
-  var srtFilePath = path.join(dir, userId + ".srt");
+  var randString = randomstring.generate(25);
+  var srtFilePath = path.join(latestHashFolder, randString + ".srt");
 
   fs.createFile(jsonFilePath, function(err) {
       if(err) {
@@ -70,22 +72,24 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
       console.log('deleted : ', req.body.deleted);
       console.log('edited : ', req.body.edited);
 
-
-      fs.writeFile(srtFilePath, generateSrtFile(jsonObj), function(err) {
-        if(err) {
-          return console.log(err);
-          
-        }
-        console.log("Srt file was saved!");
-        console.log("Commiting with git");
-        cmd.get(
-        'cd ' + gitVideoDir + '&& git add . && git commit -am "commiting in the name of:' + userId + '"',
-        function(data){
-            console.log('git cmd finished : ',data)
-            res.send();
-        }
-        );
+      fs.createFile(srtFilePath, function(err) {
+        fs.writeFile(srtFilePath, generateSrtFile(jsonObj), function(err) {
+          if(err) {
+            return console.log(err);
+            
+          }
+          console.log("Srt file was saved!");
+          console.log("Commiting with git");
+          cmd.get(
+          'cd ' + gitVideoDir + '&& git add . && git commit -am "commiting in the name of:' + userId + '"',
+          function(data){
+              console.log('git cmd finished : ',data)
+              res.send(randString);
+          }
+          );
+        });
       });
+      
     });
   });
 
@@ -192,11 +196,11 @@ function generateSrtFile(subObj){
   var i = 1;
 
   subObj.reverse().forEach(function(line) {
-    srtFile += i + "\n";
-    srtFile += ticksToTimeString(line.startTime) + " ->> " + ticksToTimeString(line.endTime) + "\n";
-    srtFile += line.txt + "\n";
+    srtFile += i + "\r\n";
+    srtFile += ticksToTimeString(line.startTime) + " ->> " + ticksToTimeString(line.endTime) + "\r\n";
+    srtFile += line.txt + "\r\n";
 
-    srtFile += "\n\n";
+    srtFile += "\r\n";
 
     i++; 
   });

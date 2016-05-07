@@ -20,7 +20,7 @@
 <body>
 	<div ng-app="Tau-Subtitles" ng-controller="subtitleTableController">
 	<div class="alerts-container">
-	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=3000>{{alert.msg}}</uib-alert>
+	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=2000>{{alert.msg}}</uib-alert>
     </div>
 		<div class="container-fluid">
 			  <div class="jumbotron">
@@ -35,9 +35,20 @@
 			                <img src='./Content/Img/filmPlaceHolder.jpg'>
 			            </a>
 			        </div>
+			        <div class="padding-div">
+			        	    <button class="btn btn-primary" ng-click="keyPressedFromTextBox(0,4)">
+					            Save
+					        </button>
+					        <button class="btn btn-primary" ng-click="">
+					            Publish
+					        </button>
+			        </div>
+			         <div class="padding-div" ng-show="latestHash.length > 0">
+			         	Your Hash Is: {{latestHash}} - <a href="/api/getLatestSubtitles/{{latestHash}}">Download</a>
+			         </div>
 				</div>
 
-				<div class="col-md-8">
+				<div class="col-md-8" style="overflow-y: scroll; height:400px;">
 					<table class="table">
 					    <thead>
 					      <tr>
