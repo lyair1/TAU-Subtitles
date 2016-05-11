@@ -295,9 +295,9 @@ function mergeSubsToObject(req, latestJsonFilePath){
   console.log('oldSubtitles : ', oldSubtitles);
   console.log('oldSubtitles[0] : ', oldSubtitles[0]);
 
-  console.log('added : ', req.body.added);
-  console.log('deleted : ', req.body.deleted);
-  console.log('edited : ', req.body.edited);
+  // console.log('added : ', req.body.added);
+  // console.log('deleted : ', req.body.deleted);
+  // console.log('edited : ', req.body.edited);
   added = JSON.parse(req.body.added);
   deleted = JSON.parse(req.body.deleted);
   edited = JSON.parse(req.body.edited);
@@ -305,13 +305,13 @@ function mergeSubsToObject(req, latestJsonFilePath){
   // remove old subtitles that were deleted or edited
   for(var i = oldSubtitles.length -1; i >= 0 ; i--){
       if(deleted[oldSubtitles[i].id] || edited[oldSubtitles[i].id]){
-        console.log('deleting from old deleted|edited : <id: ' + oldSubtitles[i].id + '> ');
+        // console.log('deleting from old deleted|edited : <id: ' + oldSubtitles[i].id + '> ');
         oldSubtitles.splice(i, 1);
       }
       else{
         for(var j = newSubtitles.length -1; j >= 0 ; j--){
           if(oldSubtitles[i].id == newSubtitles[j].id){
-            console.log('deleting from old same as new: <id: ' + oldSubtitles[i].id + '> ');
+            // console.log('deleting from old same as new: <id: ' + oldSubtitles[i].id + '> ');
             oldSubtitles.splice(i, 1);
             break;
           }
@@ -325,7 +325,7 @@ function mergeSubsToObject(req, latestJsonFilePath){
   while(iNew < newSubtitles.length && iOld < oldSubtitles.length){
     // Untouched subtitles
     if(newSubtitles[iNew].id == oldSubtitles[iOld].id){
-      console.log('adding joined : <id: ' + newSubtitles[iNew].id + '>');
+      // console.log('adding joined : <id: ' + newSubtitles[iNew].id + '>');
       joinedSubs.push(newSubtitles[iNew]);
       iNew++;
       iOld++;
@@ -333,21 +333,21 @@ function mergeSubsToObject(req, latestJsonFilePath){
 
     // No overlap - new is before
     else if(isBeforeNoOverlap(newSubtitles[iNew], oldSubtitles[iOld])){
-      console.log('adding new : <id: ' + newSubtitles[iNew].id + '>');
+      // console.log('adding new : <id: ' + newSubtitles[iNew].id + '>');
       joinedSubs.push(newSubtitles[iNew]);
       iNew++;
     }
 
     // No overlap - old is before
     else if(isBeforeNoOverlap(oldSubtitles[iOld], newSubtitles[iNew])){
-      console.log('adding old : <id: ' + oldSubtitles[iOld].id + '>');
+      // console.log('adding old : <id: ' + oldSubtitles[iOld].id + '>');
       joinedSubs.push(oldSubtitles[iOld]);
       iOld++;
     }
 
     // Overlapping subtitles - we'll take the new one
     else{
-      console.log('overlap: adding new : <id: ' + newSubtitles[iNew].id + '>');
+      // console.log('overlap: adding new : <id: ' + newSubtitles[iNew].id + '>');
       joinedSubs.push(newSubtitles[iNew]);
       iNew++;
       iOld++;
@@ -356,11 +356,11 @@ function mergeSubsToObject(req, latestJsonFilePath){
 
   // insert remaining subs
   for(; iNew < newSubtitles.length; iNew++){
-     console.log('remaining: adding new : <id: ' + newSubtitles[iNew].id + '>');
+     // console.log('remaining: adding new : <id: ' + newSubtitles[iNew].id + '>');
     joinedSubs.push(newSubtitles[iNew]);
   }
   for(; iOld < oldSubtitles.length; iOld++){
-    console.log('remaining: adding old : <id: ' + oldSubtitles[iOld].id + '>');
+    // console.log('remaining: adding old : <id: ' + oldSubtitles[iOld].id + '>');
     joinedSubs.push(oldSubtitles[iOld]);
   }
 
