@@ -44,7 +44,6 @@ var Subtitles = mongoose.model('Subtitles', {
 // // api ---------------------------------------------------------------------
 app.post('/api/saveSrtFileForUser', function(req, res) {
 	var userId = req.body.userId;
-  var subObject = diffSubObjectToStr(req.body.txt);
   var videoId = req.body.videoId
 
   var dir = fileSystemDir + getOutputFilePath(userId, videoId);
@@ -54,27 +53,26 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
   var randString = randomstring.generate(25);
   var srtFilePath = path.join(latestHashFolder, randString + ".srt");
 
+  var subObj = mergeSubsToObject(req, latestJsonFilePath);
+
   fs.createFile(jsonFilePath, function(err) {
       if(err) {
         return console.log(err);
       }
 
       //file has now been created, including the directory it is to be placed in
-      fs.writeFile(jsonFilePath, subObject, function(err) {
+      fs.writeFile(jsonFilePath, JSON.stringify(subObj), function(err) {
       if(err) {
         return console.log(err);
       }
 
       console.log("Json file was saved!");
-      jsonObj = JSON.parse(subObject);
-      console.log(JSON.stringify(jsonObj));
-      
-      console.log('added : ', req.body.added);
-      console.log('deleted : ', req.body.deleted);
-      console.log('edited : ', req.body.edited);
+
+      console.log("json saved: " + JSON.stringify(subObj));
+      // console.log("json saved2: " + subString);
 
       fs.createFile(srtFilePath, function(err) {
-        fs.writeFile(srtFilePath, generateSrtFile(jsonObj), function(err) {
+        fs.writeFile(srtFilePath, generateSrtFile(subObj), function(err) {
           if(err) {
             return console.log(err);
             
@@ -86,7 +84,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
           function(data){
               console.log('git cmd finished : ',data)
 
-              fs.writeFile(latestJsonFilePath, subObject, function(err) {
+              fs.writeFile(latestJsonFilePath, JSON.stringify(subObj), function(err) {
                 if(err) {
                   return console.log(err);                  
                 }
@@ -113,7 +111,7 @@ app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
 
   var filePath = latestHashFolder + fileName;
 
-  if (!fs.existsSync(filePath)) { 
+  if (fileExists(filePath)) { 
     console.log('file does not exist');
     res.send('fileNotExist');
     return;
@@ -133,14 +131,15 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var latestJsonFilePath = path.join(gitVideoDir, videoId + "_latest.json");
 
-  if (!fs.existsSync(latestJsonFilePath)) { 
+  if (!fileExists(latestJsonFilePath)) { 
     console.log('video latest file does not exist');
     var subtitle = [{
-      id:$scope.guid(),
+        id:guid(),
         startTime:0,
         endTime:-1,
         txt:""
     }];
+    // console.log("sent subtitle id: " + subtitle[0].id);
     res.send(JSON.stringify(subtitle));
     
     return;
@@ -196,8 +195,9 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-app.listen(8080);
-console.log("App listening on port 8080");
+port = 8080;
+app.listen(port);
+console.log("App listening on port " + port);
 
 cmd.get(
         'chdir', // Change to 'pwd' in linux
@@ -222,6 +222,13 @@ function getOutputFilePath(userId, videoId){
 
 function getOutputVideoFolder(videoId){
   return "/Subtitles/" + "/" + videoId;  
+}
+
+function guid(){
+  function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+      }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
 function generateSrtFile(subObj){
@@ -272,7 +279,106 @@ function ticksToTimeString(ticks){
     return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 };
 
-function diffSubObjectToStr(jsonStr){
-  //TODO do it
-  return jsonStr;
+function mergeSubsToObject(req, latestJsonFilePath){
+
+  newSubtitles = JSON.parse(req.body.txt);
+
+  if (!fileExists(latestJsonFilePath)) { 
+    return newSubtitles;
+  }
+  
+  var joinedSubs = [];
+
+  data = fs.readFileSync(latestJsonFilePath);
+
+  oldSubtitles = JSON.parse(data);
+  console.log('oldSubtitles : ', oldSubtitles);
+  console.log('oldSubtitles[0] : ', oldSubtitles[0]);
+
+  console.log('added : ', req.body.added);
+  console.log('deleted : ', req.body.deleted);
+  console.log('edited : ', req.body.edited);
+  added = JSON.parse(req.body.added);
+  deleted = JSON.parse(req.body.deleted);
+  edited = JSON.parse(req.body.edited);
+
+  // remove old subtitles that were deleted or edited
+  for(var i = oldSubtitles.length -1; i >= 0 ; i--){
+      if(deleted[oldSubtitles[i].id] || edited[oldSubtitles[i].id]){
+        console.log('deleting from old deleted|edited : <id: ' + oldSubtitles[i].id + '> ');
+        oldSubtitles.splice(i, 1);
+      }
+      else{
+        for(var j = newSubtitles.length -1; j >= 0 ; j--){
+          if(oldSubtitles[i].id == newSubtitles[j].id){
+            console.log('deleting from old same as new: <id: ' + oldSubtitles[i].id + '> ');
+            oldSubtitles.splice(i, 1);
+            break;
+          }
+        }
+      }
+  }
+
+  var iNew = 0;
+  var iOld = 0;
+
+  while(iNew < newSubtitles.length && iOld < oldSubtitles.length){
+    // Untouched subtitles
+    if(newSubtitles[iNew].id == oldSubtitles[iOld].id){
+      console.log('adding joined : <id: ' + newSubtitles[iNew].id + '>');
+      joinedSubs.push(newSubtitles[iNew]);
+      iNew++;
+      iOld++;
+    }
+
+    // No overlap - new is before
+    else if(isBeforeNoOverlap(newSubtitles[iNew], oldSubtitles[iOld])){
+      console.log('adding new : <id: ' + newSubtitles[iNew].id + '>');
+      joinedSubs.push(newSubtitles[iNew]);
+      iNew++;
+    }
+
+    // No overlap - old is before
+    else if(isBeforeNoOverlap(oldSubtitles[iOld], newSubtitles[iNew])){
+      console.log('adding old : <id: ' + oldSubtitles[iOld].id + '>');
+      joinedSubs.push(oldSubtitles[iOld]);
+      iOld++;
+    }
+
+    // Overlapping subtitles - we'll take the new one
+    else{
+      console.log('overlap: adding new : <id: ' + newSubtitles[iNew].id + '>');
+      joinedSubs.push(newSubtitles[iNew]);
+      iNew++;
+      iOld++;
+    }
+  }
+
+  // insert remaining subs
+  for(; iNew < newSubtitles.length; iNew++){
+     console.log('remaining: adding new : <id: ' + newSubtitles[iNew].id + '>');
+    joinedSubs.push(newSubtitles[iNew]);
+  }
+  for(; iOld < oldSubtitles.length; iOld++){
+    console.log('remaining: adding old : <id: ' + oldSubtitles[iOld].id + '>');
+    joinedSubs.push(oldSubtitles[iOld]);
+  }
+
+  return joinedSubs;
+}
+
+function isBeforeNoOverlap(firstSub, secondSub){
+    return (firstSub.endTime < secondSub.startTime)
+}
+
+function fileExists(filePath)
+{
+    try
+    {
+        return fs.statSync(filePath).isFile();
+    }
+    catch (err)
+    {
+        return false;
+    }
 }

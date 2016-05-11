@@ -12,7 +12,14 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
   	$scope.updateLatest = function(){
 		$http.get("/api/getLatestJsonSub/" + $scope.videoId).then(function(response) {
-	       	$scope.subtitles = response.data;
+	       	data = response.data;
+	       	if(data == ""){
+	       		$scope.subtitles = [];
+	       	}
+	       	else{
+	       		$scope.subtitles = data;
+	       	}
+	       	$scope.sortSubtitles(true);
 	    });
   	}
 
@@ -86,12 +93,13 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		
 		if (caseNum == 2) {
 			// Setting finish time
+			$scope.handleRowEdit($scope.subtitles[i].id)
 			$scope.subtitles[i].endTime = position;
 		}
 
 		if (caseNum == 3) {
 			// Removing Row
-			$scope.deletedIds[$scope.subtitles[i].id] = true;
+			$scope.handleRowDelete($scope.subtitles[i].id)
 
 			if($scope.subtitles.length == 1){
 				$scope.subtitles[0].id = $scope.guid();
@@ -119,13 +127,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 5) {
 			// Setting start time
+			$scope.handleRowEdit($scope.subtitles[i].id)
+
 			$scope.subtitles[i].startTime = position;
 			$scope.sortSubtitles(true);
 		}
 
 		if (caseNum == 100) {
 			// Editing text
-			$scope.editedIds[$scope.subtitles[i].id] = true;
+			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
 	}
 
@@ -133,17 +143,40 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		jwplayer().setCurrentCaptions(0);
 	});
 
+	$scope.handleRowDelete = function(id){
+		delete $scope.editedIds[id];
+
+		if(id in $scope.addedIds){
+			delete $scope.addedIds[id];
+		}
+		else{
+			$scope.deletedIds[id] = true;
+		}
+	}
+
+	$scope.handleRowEdit = function(id){
+		if(!(id in $scope.addedIds)){
+			$scope.editedIds[id] = true;
+		}
+	}
+
+
 	$scope.saveFile = function(){
+		$scope.sortSubtitles(false);
         var data = {userId:$scope.userId, videoId : $scope.videoId , txt :JSON.stringify($scope.subtitles),
-        			deleted : JSON.stringify(Object.keys($scope.deletedIds)),
-        			added : JSON.stringify(Object.keys($scope.addedIds)),
-        			edited : JSON.stringify(Object.keys($scope.editedIds))};
+        			deleted : JSON.stringify($scope.deletedIds),
+        			added : JSON.stringify($scope.addedIds),
+        			edited : JSON.stringify($scope.editedIds)};
 
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
 			$scope.addAlertMessage("File saved.", 'warning');
 			$scope.latestHash = data;
 			$scope.updateLatest();
         });
+
+        deletedIds =[];
+        addedIds =[];
+        editedIds =[];
 	}
 
 	$scope.sortSubtitles = function(backwards){
@@ -249,7 +282,7 @@ app.directive('myEnter', function () {
             	}
             }
 
-            else{
+            else if(event.which >= 33 && event.which <= 126){
             	// if it's not one of the above, than the user edited the text
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",100)");
