@@ -121,8 +121,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 				$scope.addAlertMessage("Times of overlapping subtitles were fixed. File saved.", 'warning');
 			}
 
-			$scope.sortSubtitles(true);
 			$scope.saveFile();
+			$scope.sortSubtitles(true);
+
 		}
 
 		if (caseNum == 5) {

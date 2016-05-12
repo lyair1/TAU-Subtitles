@@ -50,6 +50,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var jsonFilePath = path.join(dir, userId + ".json");
   var latestJsonFilePath = path.join(gitVideoDir, videoId + "_latest.json");
+  var creditsFilePath = path.join(gitVideoDir, videoId + "_credits.json");
   var randString = randomstring.generate(25);
   var srtFilePath = path.join(latestHashFolder, randString + ".srt");
 
@@ -70,13 +71,14 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 
       console.log("json saved: " + JSON.stringify(subObj));
       // console.log("json saved2: " + subString);
+      subObjWithCredits = addCredits(creditsFilePath, userId, subObj);
 
       fs.createFile(srtFilePath, function(err) {
-        fs.writeFile(srtFilePath, generateSrtFile(subObj), function(err) {
+        fs.writeFile(srtFilePath, generateSrtFile(subObjWithCredits), function(err) {
           if(err) {
             return console.log(err);
-            
           }
+
           console.log("Srt file was saved!");
           console.log("Commiting with git");
           cmd.get(
@@ -111,11 +113,16 @@ app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
 
   var filePath = latestHashFolder + fileName;
 
-  if (fileExists(filePath)) { 
+  if (!fileExists(filePath)) { 
     console.log('file does not exist');
     res.send('fileNotExist');
     return;
-  } 
+  }
+
+  // if(fileExists)
+  // data = fs.readFileSync(latestJsonFilePath);
+  // Subtitles = JSON.parse(data);
+
 
   res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
   res.setHeader('Content-type', 'text/srt');
@@ -235,7 +242,7 @@ function generateSrtFile(subObj){
   var srtFile = "";
   var i = 1;
 
-  subObj.reverse().forEach(function(line) {
+  subObj.forEach(function(line) {
     srtFile += i + "\r\n";
     srtFile += ticksToTimeString(line.startTime) + " ->> " + ticksToTimeString(line.endTime) + "\r\n";
     srtFile += line.txt + "\r\n";
@@ -365,6 +372,54 @@ function mergeSubsToObject(req, latestJsonFilePath){
   }
 
   return joinedSubs;
+}
+
+function addCredits(creditsFilePath, userId, subObj){
+  credits = {};
+
+  if (fileExists(creditsFilePath)) { 
+    data = fs.readFileSync(creditsFilePath);
+    credits = JSON.parse(data);
+  }
+
+  credits[userId] = true;
+
+  fs.createFile(creditsFilePath, function(err) {
+    if(err) {
+      return console.log(err);
+    }
+    fs.writeFile(creditsFilePath, JSON.stringify(credits), function(err) {
+      if(err) {
+        return console.log(err);                  
+      }
+      console.log("Credits were saved");
+    });
+  });
+
+  var creditLine = "Credits: ";
+  users = Object.keys(credits);
+  for (var i = users.length - 1; i >= 0; i--) {
+    creditLine += users[i];
+    if(i != 0){
+      creditLine += ", ";
+    }
+  }
+
+  var creditSub = {
+    id:"credit",
+    startTime:0,
+    endTime:5,
+    txt:creditLine
+  }
+
+  var subObjWithCredits = [creditSub];
+  for(var i=0; i < subObj.length; i++){
+    if(isBeforeNoOverlap(creditSub, subObj[i])){
+      subObjWithCredits.push(subObj[i]);
+    }
+  }
+
+  return subObjWithCredits;
 }
 
 function isBeforeNoOverlap(firstSub, secondSub){
