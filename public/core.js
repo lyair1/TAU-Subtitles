@@ -116,14 +116,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 4) {	
 			// saving file
 			$scope.sortSubtitles(false);
-			if($scope.makeSubtitlesTimesValid()){
-				// We changed the times of some subtitle
-				$scope.addAlertMessage("Times of overlapping subtitles were fixed. File saved.", 'warning');
+
+			if(!$scope.valdiateSubs()){
+				$scope.addAlertMessage("File was not saved. Fix errors", 'alert');
+				$scope.sortSubtitles(true);
+				return;
 			}
 
 			$scope.saveFile();
 			$scope.sortSubtitles(true);
-
 		}
 
 		if (caseNum == 5) {
@@ -192,17 +193,28 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	}
 
 	// returns true if any times was changed
-	$scope.makeSubtitlesTimesValid = function(){
-		var changedTimes = false;
+	$scope.valdiateSubs = function(){
 		var subLen = $scope.subtitles.length;
 
+		for(var i = 0 ; i < subLen ; i++){
+			if(!$scope.validSubtitle($scope.subtitles[i])){
+				$scope.addAlertMessage("Subtitle " + i + " times are wrong", 'warning');
+				return false;
+			}
+			// 2 subs starts at the same time
+			if((i != subLen -1) &&  $scope.subtitles[i].startTime == $scope.subtitles[i+1].startTime){
+				var j = i+1;
+				$scope.addAlertMessage("Subtitles " + i + " and " + j +" start at the same time", 'warning');
+				return false;
+			}
+		}
+
 		if(subLen < 2){
-			return false;
+			return true;
 		}
 
 		if($scope.subtitles[subLen-1].endTime < 0){
 			// Set last subtitle to 1 sec period if not given
-			changedTimes = true;
 			$scope.subtitles[subLen-1].endTime = $scope.subtitles[subLen-1].startTime + 1;
 		}
 
@@ -211,10 +223,11 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		    if($scope.subtitles[i].endTime < 0 || $scope.subtitles[i].endTime > $scope.subtitles[i+1].startTime){
 		    	changedTimes = true;
 		    	$scope.subtitles[i].endTime = $scope.subtitles[i+1].startTime;
+		    	$scope.addAlertMessage("Times of overlapping subtitles were fixed", 'warning');
 		    }
 		}
 
-		return changedTimes;
+		return true;
 	}
 
 	// level:1 - success , 2- warning, 3 - alert
@@ -225,6 +238,18 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.closeAlert = function(index) {
     	$scope.alerts.splice(index, 1);
   	};
+
+  	$scope.validSubtitle = function(sub){
+  		if(sub.startTime >= sub.endTime){
+  			return false;
+  		}
+
+  		if(sub.endTime == -1){
+  			return false;
+  		}
+
+  		return true;
+  	}
 
 });
 
