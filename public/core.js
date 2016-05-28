@@ -86,7 +86,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 			if (i < $scope.subtitles.length) {
 				$scope.subtitles.splice(i, 0, newSub);
-
 				return;
 			};
 		};

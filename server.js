@@ -11,8 +11,8 @@ var fs = require('fs-extra');
 var path = require('path');
 var cmd=require('node-cmd');
 var baseDir = "";
-var fileSystemDir = "C:\\SubGit\\";
-var latestHashFolder = fileSystemDir + "\\hash\\";
+var fileSystemDir = "/root/SubtitlesRoot/";
+var latestHashFolder = fileSystemDir + "/hash/";
 
 // Cross domain
 
@@ -67,7 +67,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
         return console.log(err);
       }
 
-      console.log("Json file was saved!");
+      console.log("Json file was saved to " + jsonFilePath + " !");
 
       console.log("json saved: " + JSON.stringify(subObj));
       // console.log("json saved2: " + subString);
@@ -202,7 +202,7 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-port = 8080;
+port = 80;
 app.listen(port);
 console.log("App listening on port " + port);
 
