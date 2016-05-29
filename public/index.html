@@ -25,7 +25,10 @@
 		<div class="container-fluid" ng-show="subtitles.length > 0">
 			  <div class="jumbotron">
 			    <h1>TAU Sub</h1>
-			    <p>Add Row - 'ctrl + s' , Play\Stop - 'ctrl + enter' , Set Finish Time - 'ctrl + f' , Set Start Time - 'ctrl + g' , Remove Row - 'ctrl + d' , Save Subtitles = 'ctrl + shift + s</p>
+			    <p><b>Play\Stop</b> - 'ctrl + enter', <b>Save</b> - 'ctrl + shift + s'</p>
+			    <p><b>Add Row</b> - 'ctrl + s' , <b>Remove Row</b> - 'ctrl + d' </p>
+			    <p><b>Set Start Time</b> - 'ctrl + g', <b>Set Finish Time</b> - 'ctrl + f'</p>
+			    <p><b>Faster</b> - 'ctrl + Arrow Up', <b>Slower</b> - 'ctrl + Arrow Down' </p>
 			  </div>
 
 			<div class="row">
@@ -46,6 +49,9 @@
 				</div>
 
 				<div class="col-md-8" style="overflow-y: scroll; height:400px;">
+					<div class="padding-div">
+			         	<input type="checkbox" id="loop"> Loop
+			        </div>
 					<table class="table">
 					    <thead>
 					      <tr>
@@ -55,7 +61,7 @@
 					      </tr>
 					    </thead>
 					    <tbody>
-					      <tr class="success" ng-repeat="sub in subtitles track by $index">
+					      <tr class="success" ng-repeat="sub in subtitles track by $index" ng-click="goToTime(sub.startTime)">
 					        <td>{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
 					        <td><input type="text" class="form-control" ng-model="sub.txt" my-enter="keyPressedFromTextBox($index" ></td>
@@ -78,34 +84,16 @@
 	        file: 'rtmp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4/playlist.m3u8',
 	        image: '/Content/Img/filmPlaceHolder.jpg',
 	        type: 'mp4',
-	        primary: 'html5',
-	        tracks: [{ 
-            file: "/videos/Martin.vtt", 
-            label: "English",
-            kind: "captions",
-            "default": true 
-        },{ 
-            file: "/videos/Martin.vtt", 
-            kind: "captions",
-            label: "French"
-        }]}]
+	        primary: 'html5'
+	    	}]
 	    });
 	} else {
 	    playerInstance.setup({
 	    	playlist: [{
 	        file: 'http://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4/manifest.mpd',
 	        image: '/Content/Img/filmPlaceHolder.jpg',
-	        autostart: 'false',
-	        tracks: [{ 
-            file: "/videos/Martin.vtt", 
-            label: "English",
-            kind: "captions",
-            "default": true 
-        },{ 
-            file: "/videos/Martin.vtt", 
-            kind: "captions",
-            label: "French"
-        }]}]
+	        autostart: 'false'
+	    	}]
 	    });
 	    
 	    jQuery('.reloadMovie').on('click', function(){
@@ -116,17 +104,8 @@
 	            image: '/Content/Img/filmPlaceHolder.jpg',
 	            primary: 'html5',
 	            autostart: 'false',
-	            controls: '1',
-	            tracks: [{ 
-            file: "/videos/Martin.vtt", 
-            label: "English",
-            kind: "captions",
-            "default": true
-        },{ 
-            file: "/videos/Martin.vtt", 
-            kind: "captions",
-            label: "French"
-        }]}]
+	            controls: '1'
+	        	}]
 	        });
 	    })
 
@@ -143,6 +122,20 @@
 	            return;
 	        }
 	    });
+	}
+
+	function changeSpeed(speed) {
+		    
+		if(IE11 || IEold){
+			jwplayer().seek(jwplayer().getPosition());
+			jwplayer().on('seek', function(){theVideo.playbackRate = speed;});
+			jwplayer().on('pause', function(){theVideo.playbackRate = speed;});
+			jwplayer().on('play', function(){theVideo.playbackRate = speed;});
+			theVideo.playbackRate = speed;
+		} else {
+			jwplayer().seek(jwplayer().getPosition());
+			theVideo.playbackRate = speed;
+		}
 	}
 
 </script>

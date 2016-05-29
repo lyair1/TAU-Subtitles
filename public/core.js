@@ -22,7 +22,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	       	$scope.sortSubtitles(true);
 	    });
   	}
-
+  	$scope.speed = 1.0;
 	$scope.userId = "FakeUser";
 	$scope.videoId = "FakeVideo";
 
@@ -66,6 +66,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
+
+	$scope.goToTime = function(time){
+		jwplayer().seek(time);
+	}
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
 		var position = jwplayer().getPosition();
@@ -307,6 +311,17 @@ app.directive('myEnter', function () {
             	}
             }
 
+            else if(event.ctrlKey && event.which == 38){ // ctrl + up arrow
+            	scope.speed = Math.min(scope.speed + 0.1, 2.0)
+            	changeSpeed(scope.speed);
+            	event.preventDefault();
+            }
+			
+			else if(event.ctrlKey && event.which == 40){ // ctrl + down arrow
+				scope.speed = Math.max(scope.speed - 0.1, 0.5)
+            	changeSpeed(scope.speed);
+                event.preventDefault();
+            }
             else if(event.which >= 33 && event.which <= 126){
             	// if it's not one of the above, than the user edited the text
             	scope.$apply(function (){
