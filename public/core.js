@@ -23,6 +23,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	    });
   	}
   	$scope.speed = 1.0;
+  	$scope.currentIndex = 0;
 	$scope.userId = "FakeUser";
 	$scope.videoId = "FakeVideo";
 
@@ -67,8 +68,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
 
-	$scope.goToTime = function(time){
+	$scope.subClick = function(time, index){
 		jwplayer().seek(time);
+  		$scope.currentIndex = index;
+		$scope.handleLoop(index);
 	}
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
@@ -142,11 +145,21 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			// Editing text
 			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
+
+		$scope.handleLoop(i);
 	}
 
-	jwplayer().on('captionsChanged', function(){
-		jwplayer().setCurrentCaptions(0);
-	});
+	$scope.handleLoop = function(i){
+		jwplayer().onTime(function (event) {
+			if(document.getElementById("loop").checked && $scope.validSubtitle($scope.subtitles[i])){
+				if(event.position > $scope.subtitles[i].endTime){
+					if($scope.currentIndex == i){
+						jwplayer().seek($scope.subtitles[i].startTime);	
+					}
+				}
+			}
+		});
+	}
 
 	$scope.handleRowDelete = function(id){
 		delete $scope.editedIds[id];

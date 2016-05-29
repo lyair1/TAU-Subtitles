@@ -61,7 +61,7 @@
 					      </tr>
 					    </thead>
 					    <tbody>
-					      <tr class="success" ng-repeat="sub in subtitles track by $index" ng-click="goToTime(sub.startTime)">
+					      <tr class="success" ng-repeat="sub in subtitles track by $index" ng-click="subClick(sub.startTime, $index)">
 					        <td>{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
 					        <td><input type="text" class="form-control" ng-model="sub.txt" my-enter="keyPressedFromTextBox($index" ></td>
@@ -111,7 +111,7 @@
 
 	    var trident = !!navigator.userAgent.match(/Trident\/7.0/);
 	    var net = !!navigator.userAgent.match(/.NET4.0E/);
-	    var IE11 = trident && net
+	    var IE11 = trident && net;
 	    var IEold = ( navigator.userAgent.match(/MSIE/i) ? true : false );
 	    var theVideo;
 	    jwplayer().on('ready', function(){
@@ -125,7 +125,6 @@
 	}
 
 	function changeSpeed(speed) {
-		    
 		if(IE11 || IEold){
 			jwplayer().seek(jwplayer().getPosition());
 			jwplayer().on('seek', function(){theVideo.playbackRate = speed;});
