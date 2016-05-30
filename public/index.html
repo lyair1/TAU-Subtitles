@@ -61,10 +61,10 @@
 					      </tr>
 					    </thead>
 					    <tbody>
-					      <tr class="success" ng-repeat="sub in subtitles track by $index" ng-click="subClick(sub.startTime, $index)">
-					        <td>{{ticksToTimeString(sub.startTime)}}</td>
+					      <tr class="success" ng-repeat="sub in subtitles track by $index">
+					        <td ng-click="timeClick(sub.startTime)">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
-					        <td><input type="text" class="form-control" ng-model="sub.txt" my-enter="keyPressedFromTextBox($index" ></td>
+					        <td><input type="text" class="form-control" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" ></td>
 					      </tr>
 					    </tbody>
 					  </table>
@@ -122,19 +122,6 @@
 	            return;
 	        }
 	    });
-	}
-
-	function changeSpeed(speed) {
-		if(IE11 || IEold){
-			jwplayer().seek(jwplayer().getPosition());
-			jwplayer().on('seek', function(){theVideo.playbackRate = speed;});
-			jwplayer().on('pause', function(){theVideo.playbackRate = speed;});
-			jwplayer().on('play', function(){theVideo.playbackRate = speed;});
-			theVideo.playbackRate = speed;
-		} else {
-			jwplayer().seek(jwplayer().getPosition());
-			theVideo.playbackRate = speed;
-		}
 	}
 
 </script>

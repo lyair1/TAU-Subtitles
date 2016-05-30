@@ -68,10 +68,13 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
 
-	$scope.subClick = function(time, index){
-		jwplayer().seek(time);
+	$scope.subClick = function(index){
   		$scope.currentIndex = index;
 		$scope.handleLoop(index);
+	}
+
+	$scope.timeClick = function(time){
+		jwplayer().seek(time);
 	}
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
@@ -152,7 +155,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.handleLoop = function(i){
 		jwplayer().onTime(function (event) {
 			if(document.getElementById("loop").checked && $scope.validSubtitle($scope.subtitles[i])){
-				if(event.position > $scope.subtitles[i].endTime){
+				if(event.position > $scope.subtitles[i].endTime && event.position < $scope.subtitles[i].endTime + 0.5){
 					if($scope.currentIndex == i){
 						jwplayer().seek($scope.subtitles[i].startTime);	
 					}
