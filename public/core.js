@@ -270,6 +270,21 @@ app.controller('subtitleTableController',function subtitleTableController($scope
   		return true;
   	}
 
+	$scope.changeSpeed = function(speed){
+	    if(IE11 || IEold){
+	        jwplayer().seek(jwplayer().getPosition());
+	        jwplayer().on('seek', function(){theVideo.playbackRate = speed;});
+	        jwplayer().on('pause', function(){theVideo.playbackRate = speed;});
+	        jwplayer().on('play', function(){theVideo.playbackRate = speed;});
+	        theVideo.playbackRate = speed;
+	    } else {
+	        jwplayer().seek(jwplayer().getPosition());
+	        theVideo.playbackRate = speed;
+	      }
+  	}
+  
+
+
 });
 
 
@@ -327,15 +342,23 @@ app.directive('myEnter', function () {
             	}
             }
 
+			else if(event.which == 13) { // enter without ctrl - adds new line (same as ctrl + s)
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter + ",1)");
+                });
+
+                event.preventDefault();
+            }
+
             else if(event.ctrlKey && event.which == 38){ // ctrl + up arrow
             	scope.speed = Math.min(scope.speed + 0.1, 2.0)
-            	changeSpeed(scope.speed);
+            	scope.changeSpeed(scope.speed);
             	event.preventDefault();
             }
 			
 			else if(event.ctrlKey && event.which == 40){ // ctrl + down arrow
 				scope.speed = Math.max(scope.speed - 0.1, 0.5)
-            	changeSpeed(scope.speed);
+            	scope.changeSpeed(scope.speed);
                 event.preventDefault();
             }
             else if(event.which >= 33 && event.which <= 126){
