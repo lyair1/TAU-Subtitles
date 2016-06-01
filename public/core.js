@@ -144,6 +144,12 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.sortSubtitles(true);
 		}
 
+
+		if (caseNum == 6) {
+			// changing loop
+			document.getElementById("loop").checked ^= true;
+		}
+
 		if (caseNum == 100) {
 			// Editing text
 			$scope.handleRowEdit($scope.subtitles[i].id)
@@ -327,6 +333,14 @@ app.directive('myEnter', function () {
             else if(event.ctrlKey && event.which == 71) { // ctrl + g - case #5
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter  + ",5)");
+                });
+
+                event.preventDefault();
+            }
+
+            else if(event.ctrlKey && event.which == 76) { // ctrl + l - case #6
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",6)");
                 });
 
                 event.preventDefault();

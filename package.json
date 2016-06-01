@@ -6,6 +6,7 @@
   "author": "Yair Levi & Itai Admi",
   "dependencies": {
     "body-parser": "^1.4.3",
+    "css-toggle-switch": "^4.0.2",
     "express": "^4.13.4",
     "fs-extra": "^0.30.0",
     "method-override": "^2.1.3",

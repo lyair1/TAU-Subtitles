@@ -11,6 +11,7 @@
     <script src="/includes/ui-bootstrap-tpls-1.3.2.min.js"></script>
     <script src="core.js"></script>
     <link href="/includes/bootstrap.min.css" rel="stylesheet">
+    <link href="/includes/toggle-switch.css" rel="stylesheet">
 	<script type="text/javascript" src="/includes/jwplayer/jwplayer.js"></script>
 	<script type="text/javascript">jwplayer.key="+rrlB3wprn26V24N1tGu0ATArz7gd0p/Y/e7DJfsBSw=";</script>	
 	
@@ -25,12 +26,30 @@
 		<div class="container-fluid" ng-show="subtitles.length > 0">
 			  <div class="jumbotron">
 			    <h1>TAU Sub</h1>
-			    <p><b>Play\Stop</b> - 'ctrl + enter', <b>Save</b> - 'ctrl + shift + s'</p>
-			    <p><b>Add Row</b> - 'ctrl + s' , <b>Remove Row</b> - 'ctrl + d' </p>
-			    <p><b>Set Start Time</b> - 'ctrl + g', <b>Set Finish Time</b> - 'ctrl + f'</p>
+			    <p><b>Play\Stop</b> - 'ctrl + Enter', <b>Save</b> - 'ctrl + shift + S'</p>
+			    <p><b>Add Row</b> - 'ctrl + S' \ Enter , <b>Remove Row</b> - 'ctrl + D' </p>
+			    <p><b>Set Start Time</b> - 'ctrl + G', <b>Set Finish Time</b> - 'ctrl + F'</p>
 			    <p><b>Faster</b> - 'ctrl + Arrow Up', <b>Slower</b> - 'ctrl + Arrow Down' </p>
+			    <p><b>Loop</b> - 'ctrl + L'
 			  </div>
 
+	  		<div class="row">
+				<div class="col-md-4">
+		        </div>				
+		        <div class="col-md-1">
+		        	<label class="switch-light switch-candy" onclick="">
+  						<input type="checkbox" id="loop">
+						  <strong>
+						    Loop
+						  </strong>
+						  <span>
+						    <span>Off</span>
+						    <span>On</span>
+						    <a></a>
+						  </span>
+					</label>
+	       		</div>
+	       	</div>
 			<div class="row">
 			    <div class="col-md-4">
 			        <div id="videoFrame" title="TAU Webcast video player">
@@ -49,9 +68,6 @@
 				</div>
 
 				<div class="col-md-8" style="overflow-y: scroll; height:400px;">
-					<div class="padding-div">
-			         	<input type="checkbox" id="loop"> Loop
-			        </div>
 					<table class="table">
 					    <thead>
 					      <tr>
@@ -62,7 +78,7 @@
 					    </thead>
 					    <tbody>
 					      <tr class="success" ng-repeat="sub in subtitles track by $index">
-					        <td ng-click="timeClick(sub.startTime)">{{ticksToTimeString(sub.startTime)}}</td>
+					        <td ng-click="timeClick(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
 					        <td><input type="text" class="form-control" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" ></td>
 					      </tr>
