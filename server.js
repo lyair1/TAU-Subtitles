@@ -244,7 +244,7 @@ function generateSrtFile(subObj){
 
   subObj.forEach(function(line) {
     srtFile += i + "\r\n";
-    srtFile += ticksToTimeString(line.startTime) + " ->> " + ticksToTimeString(line.endTime) + "\r\n";
+    srtFile += ticksToTimeString(line.startTime) + " --> " + ticksToTimeString(line.endTime) + "\r\n";
     srtFile += line.txt + "\r\n";
 
     srtFile += "\r\n";
