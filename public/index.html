@@ -94,10 +94,53 @@
 
 <script type="text/javascript">
 	var playerInstance = jwplayer("videoFrame");
+
+
+	var getQueryVariable = function(variable) {
+	    var query = window.location.search.substring(1);
+	    var vars = query.split('&');
+	    for (var i = 0; i < vars.length; i++) {
+	        var pair = vars[i].split('=');
+	        if (decodeURIComponent(pair[0]) == variable) {
+	            return decodeURIComponent(pair[1]);
+	        }
+	    }
+	}
+
+	var videoId = getQueryVariable("id");
+	var userId = getQueryVariable("userId");
+	
+	// rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:1011/2106/1011210611-20152-12387.mp4
+	// http://lool.tau.ac.il/index.html?user=yairlevi1&id=10112106112015212387
+
+	// rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:1411/9108/1411910801-20152-12386.mp4
+	// http://lool.tau.ac.il/index.html?user=yairlevi1&id=14119108012015212386
+
+	var getVideoUrlFromParam = function(videoId){
+		if (!videoId) {
+			return "";
+		}
+
+		var baseUrl = "://vod.tau.ac.il:80/Courses/_definst_/mp4:";
+		var part1 = videoId.substring(0,4);
+		var part2 = videoId.substring(4,8);
+		var part3 = videoId.substring(8,10);
+		var part4 = videoId.substring(10,15);
+		var part5 = videoId.substring(15,20);
+
+		return baseUrl + part1 + "/" + part2 + "/" + part1 + part2 + part3 + "-" + part4 + "-" + part5 + ".mp4/";
+	}
+
+	var videoUrl = getVideoUrlFromParam(videoId);
+
+	var rtmpUrl = "rtmp" + videoUrl + "playlist.m3u8";
+	var httpUrl1 = "http" + videoUrl + "manifest.mpd";
+	var httpUrl2 = "http" + videoUrl + "playlist.m3u8";
+
 	if (navigator.userAgent.match(/android/i) != null){
 	    playerInstance.setup({
 	    	playlist: [{
-	        file: 'rtmp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4/playlist.m3u8',
+	        file: rtmpUrl,
 	        image: '/Content/Img/filmPlaceHolder.jpg',
 	        type: 'mp4',
 	        primary: 'html5'
@@ -106,7 +149,7 @@
 	} else {
 	    playerInstance.setup({
 	    	playlist: [{
-	        file: 'http://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4/manifest.mpd',
+	        file: httpUrl1,
 	        image: '/Content/Img/filmPlaceHolder.jpg',
 	        autostart: 'false'
 	    	}]
@@ -116,7 +159,7 @@
 	        playerInstance.remove();
 	        playerInstance.setup({
 	        	playlist: [{
-	            file: 'http://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4/playlist.m3u8',
+	            file: httpUrl2,
 	            image: '/Content/Img/filmPlaceHolder.jpg',
 	            primary: 'html5',
 	            autostart: 'false',

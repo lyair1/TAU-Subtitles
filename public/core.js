@@ -1,7 +1,7 @@
 // Angular Code
 var app = angular.module('Tau-Subtitles', ['ngAnimate', 'ui.bootstrap']);
 
-app.controller('subtitleTableController',function subtitleTableController($scope, $http) {
+app.controller('subtitleTableController',function subtitleTableController($scope, $http, $location) {
 
 	$scope.guid = function(){
 		function s4() {
