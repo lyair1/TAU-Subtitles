@@ -36,7 +36,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	    }
 	}
 
-	$scope.userId = $scope.getQueryVariable("userId");
+	$scope.userId = $scope.getQueryVariable("user");
 	$scope.videoId = $scope.getQueryVariable("id");
 
 	$scope.subtitles = [];
