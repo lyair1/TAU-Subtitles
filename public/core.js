@@ -223,7 +223,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
         			edited : JSON.stringify($scope.editedIds)};
 
         $http.post("/api/saveSrtFileForUser", data).success(function(data, status) {
-			$scope.addAlertMessage("File saved.", 'warning');
+			$scope.addAlertMessage("File saved.", 'success');
 			$scope.latestHash = data;
 			$scope.updateLatest();
         });
@@ -249,14 +249,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		var subLen = $scope.subtitles.length;
 
 		for(var i = 0 ; i < subLen ; i++){
-			if($scope.validSubtitle($scope.subtitles[i]).length > 0){
-				$scope.addAlertMessage("Subtitle " + i + " times are wrong", 'warning');
+			var message = $scope.validSubtitle($scope.subtitles[i]);
+			if(message.length > 0){
+				$scope.addAlertMessage($scope.validSubtitle($scope.subtitles[i]) + " at subtitle " + i, 'danger');
 				return i;
 			}
 			// 2 subs starts at the same time
 			if((i != subLen -1) &&  $scope.subtitles[i].startTime == $scope.subtitles[i+1].startTime){
 				var j = i+1;
-				$scope.addAlertMessage("Subtitles " + i + " and " + j +" start at the same time", 'warning');
+				$scope.addAlertMessage("Subtitles " +  i + " and " + j +" start at the same time", 'danger');
 				return i;
 			}
 		}
