@@ -12,6 +12,7 @@ var path = require('path');
 var cmd=require('node-cmd');
 var baseDir = "";
 var fileSystemDir = "/root/SubtitlesRoot/";
+var publicChaptersDir = "/root/main/FinalProject/public/Chapters/"
 var latestHashFolder = fileSystemDir + "/hash/";
 
 // Cross domain
@@ -97,6 +98,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
   var creditsFilePath = path.join(gitVideoDir, videoId + "_credits.json");
   var randString = randomstring.generate(25);
   var srtFilePath = path.join(latestHashFolder, randString + ".srt");
+  var chapterFilePath = path.join(publicChaptersDir + videoId, "latestChapter.srt");
 
   var subObj = mergeSubsToObject(req, latestJsonFilePath);
 
@@ -118,7 +120,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
       subObjWithCredits = addCredits(creditsFilePath, userId, subObj);
 
       fs.createFile(srtFilePath, function(err) {
-        fs.writeFile(srtFilePath, generateSrtFile(subObjWithCredits), function(err) {
+        fs.writeFile(srtFilePath, generateSrtFile(subObjWithCredits, false), function(err) {
           if(err) {
             return console.log(err);
           }
@@ -141,6 +143,16 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
               });
           }
           );
+        });
+      });
+
+      fs.createFile(chapterFilePath, function(err) {
+        fs.writeFile(chapterFilePath, generateSrtFile(subObj, true), function(err) {
+          if(err) {
+            return console.log(err);
+          }
+
+          console.log("Chapter file was saved!");
         });
       });
       
@@ -246,7 +258,7 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-port = 3000;
+port = 80;
 app.listen(port);
 console.log("App listening on port " + port);
 
@@ -282,7 +294,7 @@ function guid(){
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
-function generateSrtFile(subObj){
+function generateSrtFile(subObj, chapters){
   var srtFile = "";
   var i = 1;
 
@@ -290,25 +302,28 @@ function generateSrtFile(subObj){
     srtFile += i + "\r\n";
     srtFile += ticksToTimeString(line.startTime) + " --> " + ticksToTimeString(line.endTime) + "\r\n";
 
-    var txt = line.txt;
-    if(txt.length < 40){
-      srtFile += txt + "\r\n";
+    if(chapters){
+      srtFile += "#" + i + "\r\n";
     }
     else{
-      var spaceLocation = txt.indexOf(' ' , txt.length/2 - 5);
-
-      if(spaceLocation == -1)
-      {
+      var txt = line.txt;
+      if(txt.length < 40){
         srtFile += txt + "\r\n";
       }
-      else
-      {
-        srtFile += txt.substring(0 , spaceLocation) + "\r\n";
-        srtFile += txt.substring(spaceLocation + 1) + "\r\n";
+      else{
+        var spaceLocation = txt.indexOf(' ' , txt.length/2 - 5);
+
+        if(spaceLocation == -1)
+        {
+          srtFile += txt + "\r\n";
+        }
+        else
+        {
+          srtFile += txt.substring(0 , spaceLocation) + "\r\n";
+          srtFile += txt.substring(spaceLocation + 1) + "\r\n";
+        }
       }
-
     }
-
 
     srtFile += "\r\n";
 
