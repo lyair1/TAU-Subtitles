@@ -151,12 +151,17 @@
 	var rtmpUrl = "rtmp" + videoUrl + "playlist.m3u8";
 	var httpUrl1 = "http" + videoUrl + "manifest.mpd";
 	var httpUrl2 = "http" + videoUrl + "playlist.m3u8";
+	var chaptersStr = '/Subtitles/' + videoId + '/chapters.srt';
 
 	if (navigator.userAgent.match(/android/i) != null){
 	    playerInstance.setup({
 	    	playlist: [{
 	        file: rtmpUrl,
 	        image: '/Content/Img/filmPlaceHolder.jpg',
+            tracks: [{
+			    file: chaptersStr,
+			    kind:'chapters'
+			  }],
 	        type: 'mp4',
 	        primary: 'html5'
 	    	}]
@@ -166,6 +171,10 @@
 	    	playlist: [{
 	        file: httpUrl1,
 	        image: '/Content/Img/filmPlaceHolder.jpg',
+            tracks: [{
+			    file: chaptersStr,
+			    kind:'chapters'
+			  }],
 	        autostart: 'false'
 	    	}]
 	    });
@@ -176,6 +185,10 @@
 	        	playlist: [{
 	            file: httpUrl2,
 	            image: '/Content/Img/filmPlaceHolder.jpg',
+	            tracks: [{
+				    file: chaptersStr,
+				    kind:'chapters'
+				  }],
 	            primary: 'html5',
 	            autostart: 'false',
 	            controls: '1'
