@@ -24,10 +24,10 @@ app.all('/', function(req, res, next) {
 
 
 // Create LDAP client
-var ldap = require('ldapjs');
-var client = ldap.createClient({
-  url: 'ldap://ldap.tau.ac.il:636'
-});
+// var ldap = require('ldapjs');
+// var client = ldap.createClient({
+//   url: 'ldap://ldap.tau.ac.il:636'
+// });
 
 // // Bind LDAP server
 

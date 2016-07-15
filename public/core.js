@@ -83,7 +83,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	};
 
 	$scope.tryToAuthenticate = function(){
-		alert("Trying to authenticate with:" + $scope.userId + " and " + $scope.userPass);
+		//alert("Trying to authenticate with:" + $scope.userId + " and " + $scope.userPass);
 
 		var data = {userId:$scope.userId, userPass : $scope.pass};
 
