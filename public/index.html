@@ -80,7 +80,7 @@
 					      <tr class="success" ng-repeat="sub in subtitles track by $index">
 					        <td ng-click="timeClick(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
-					        <td><input type="text" class="form-control" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" ></td>
+					        <td><input type="text" class="form-control" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" ></td>
 					      </tr>
 					    </tbody>
 					  </table>
