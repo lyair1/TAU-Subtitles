@@ -289,7 +289,26 @@ function generateSrtFile(subObj){
   subObj.forEach(function(line) {
     srtFile += i + "\r\n";
     srtFile += ticksToTimeString(line.startTime) + " --> " + ticksToTimeString(line.endTime) + "\r\n";
-    srtFile += line.txt + "\r\n";
+
+    var txt = line.txt;
+    if(txt.length < 40){
+      srtFile += txt + "\r\n";
+    }
+    else{
+      var spaceLocation = txt.indexOf(' ' , txt.length/2 - 5);
+
+      if(spaceLocation == -1)
+      {
+        srtFile += txt + "\r\n";
+      }
+      else
+      {
+        srtFile += txt.substring(0 , spaceLocation) + "\r\n";
+        srtFile += txt.substring(spaceLocation + 1) + "\r\n";
+      }
+
+    }
+
 
     srtFile += "\r\n";
 
