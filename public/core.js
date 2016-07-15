@@ -120,7 +120,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 			if (i < $scope.subtitles.length) {
 				$scope.subtitles.splice(i, 0, newSub);
-				return;
 			};
 		};
 		
@@ -150,8 +149,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			// saving file
 			$scope.sortSubtitles(false);
 
-			if(!$scope.valdiateSubs()){
-				$scope.addAlertMessage("File was not saved. Fix errors", 'alert');
+			if($scope.valdiateSubs() != -1){
+				$scope.focusOnSubtitle
+				$scope.addAlertMessage("File was not saved. Fix errors", 'danger');
 				$scope.sortSubtitles(true);
 				return;
 			}
@@ -179,12 +179,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
 
+		// Sort subtitles
+        $scope.sortSubtitles(true);
+
 		$scope.handleLoop(i);
 	}
 
 	$scope.handleLoop = function(i){
 		jwplayer().onTime(function (event) {
-			if(document.getElementById("loop").checked && $scope.validSubtitle($scope.subtitles[i])){
+			if(document.getElementById("loop").checked && $scope.validSubtitle($scope.subtitles[i]).length == 0){
 				if(event.position > $scope.subtitles[i].endTime && event.position < $scope.subtitles[i].endTime + 0.5){
 					if($scope.currentIndex == i){
 						jwplayer().seek($scope.subtitles[i].startTime);	
@@ -246,20 +249,20 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		var subLen = $scope.subtitles.length;
 
 		for(var i = 0 ; i < subLen ; i++){
-			if(!$scope.validSubtitle($scope.subtitles[i])){
+			if($scope.validSubtitle($scope.subtitles[i]).length > 0){
 				$scope.addAlertMessage("Subtitle " + i + " times are wrong", 'warning');
-				return false;
+				return i;
 			}
 			// 2 subs starts at the same time
 			if((i != subLen -1) &&  $scope.subtitles[i].startTime == $scope.subtitles[i+1].startTime){
 				var j = i+1;
 				$scope.addAlertMessage("Subtitles " + i + " and " + j +" start at the same time", 'warning');
-				return false;
+				return i;
 			}
 		}
 
 		if(subLen < 2){
-			return true;
+			return -1;
 		}
 
 		if($scope.subtitles[subLen-1].endTime < 0){
@@ -276,7 +279,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		    }
 		}
 
-		return true;
+		return -1;
 	}
 
 	// level:1 - success , 2- warning, 3 - alert
@@ -289,15 +292,23 @@ app.controller('subtitleTableController',function subtitleTableController($scope
   	};
 
   	$scope.validSubtitle = function(sub){
-  		if(sub.startTime >= sub.endTime){
-  			return false;
+  		if (sub.txt.length == 0) {
+  			return "Empty Subtitle";
   		}
 
   		if(sub.endTime == -1){
-  			return false;
+  			return "No End Time";
   		}
 
-  		return true;
+  		if(sub.startTime >= sub.endTime){
+  			return "Start Time > End Time";
+  		}
+
+  		if (sub.endTime - sub.startTime > 15) {
+  			return "Subtitle Length > 15 sec"
+  		}
+
+  		return "";
   	}
 
 	$scope.changeSpeed = function(speed){

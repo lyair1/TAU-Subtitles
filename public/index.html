@@ -21,7 +21,7 @@
 <body>
 	<div ng-app="Tau-Subtitles" ng-controller="subtitleTableController">
 	<div class="alerts-container">
-	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=2000>{{alert.msg}}</uib-alert>
+	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=5000>{{alert.msg}}</uib-alert>
     </div>
 
     	<div class="container-fluid input-text-max-width" ng-hide="authenticated">
@@ -81,16 +81,21 @@
 					<table class="table">
 					    <thead>
 					      <tr>
+					      	<th class="col-md-1">#</th>
 					        <th class="col-md-1">Start Time</th>
 					        <th class="col-md-1">End Time</th>
-					        <th class="col-md-10">Text</th>
+					        <th class="col-md-9">Text</th>
 					      </tr>
 					    </thead>
 					    <tbody>
-					      <tr class="success" ng-repeat="sub in subtitles track by $index">
+					      <tr ng-repeat="sub in subtitles track by $index" ng-class="validSubtitle(sub).length == 0 ? 'alert-success' : 'alert-danger'">
+					      	<td>{{$index+1}}</td>
 					        <td ng-click="timeClick(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
-					        <td><input type="text" class="form-control" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" ></td>
+					        <td>
+					        	<input type="text" class="form-control" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
+					        	{{validSubtitle(subtitles[$index])}}
+					        </td>
 					      </tr>
 					    </tbody>
 					  </table>
