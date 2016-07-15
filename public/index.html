@@ -89,7 +89,7 @@
 					    </thead>
 					    <tbody>
 					      <tr ng-repeat="sub in subtitles track by $index" ng-class="validSubtitle(sub).length == 0 ? 'alert-success' : 'alert-danger'">
-					      	<td>{{$index+1}}</td>
+					      	<td>{{subtitles.length - $index}}</td>
 					        <td ng-click="timeClick(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
 					        <td>
