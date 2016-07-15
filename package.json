@@ -13,6 +13,7 @@
     "mongoose": "^4.4.12",
     "morgan": "^1.1.1",
     "node-cmd": "^1.1.1",
-    "randomstring": "^1.1.4"
+    "randomstring": "^1.1.4",
+    "ldapjs": "^1.0.0"
   }
 }
