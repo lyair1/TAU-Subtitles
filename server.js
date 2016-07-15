@@ -23,6 +23,19 @@ app.all('/', function(req, res, next) {
  });
 
 
+// Create LDAP client
+var ldap = require('ldapjs');
+var client = ldap.createClient({
+  url: 'ldap://ldap.tau.ac.il:636'
+});
+
+// // Bind LDAP server
+
+// client.bind('cn=tausub', '0546615116', function(err) {
+//   assert.ifError(err);
+//   console.log('Sucessfully bind ldap server.');
+// });
+
 // configuration =================
 
 //mongoose.connect('mongodb://localhost/TauSubDb');
@@ -42,6 +55,37 @@ var Subtitles = mongoose.model('Subtitles', {
 // routes ======================================================================
 
 // // api ---------------------------------------------------------------------
+app.post('/api/auth', function(req, res) {
+    var userId = req.body.userId;
+    var pass = req.body.pass;
+
+    // var opts = {
+    //   filter: '(&(objectclass=user)(uid='+userId+pass+'))',
+    //   scope: 'sub',
+    //   attributes: ['dn', 'sn', 'cn']
+    // };
+
+    // client.search('o=example', opts, function(err, res) {
+    //   assert.ifError(err);
+
+    //   res.on('searchEntry', function(entry) {
+    //     console.log('entry: ' + JSON.stringify(entry.object));
+    //   });
+    //   res.on('searchReference', function(referral) {
+    //     console.log('referral: ' + referral.uris.join());
+    //   });
+    //   res.on('error', function(err) {
+    //     console.error('error: ' + err.message);
+    //   });
+    //   res.on('end', function(result) {
+    //     console.log('status: ' + result.status);
+    //   });
+    // });
+
+    res.send('authenticated');
+});
+
+
 app.post('/api/saveSrtFileForUser', function(req, res) {
 	var userId = req.body.userId;
   var videoId = req.body.videoId
@@ -202,7 +246,7 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-port = 80;
+port = 3000;
 app.listen(port);
 console.log("App listening on port " + port);
 

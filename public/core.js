@@ -37,7 +37,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	}
 
 	$scope.userId = $scope.getQueryVariable("user");
+	$scope.userPass = "";
 	$scope.videoId = $scope.getQueryVariable("id");
+	$scope.authenticated = false;
 
 	$scope.subtitles = [];
 
@@ -79,6 +81,16 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
+
+	$scope.tryToAuthenticate = function(){
+		alert("Trying to authenticate with:" + $scope.userId + " and " + $scope.userPass);
+
+		var data = {userId:$scope.userId, userPass : $scope.pass};
+
+		$http.post("/api/auth", data).success(function(data, status) {
+			$scope.authenticated = data == "authenticated";
+        });
+	}
 
 	$scope.subClick = function(index){
   		$scope.currentIndex = index;

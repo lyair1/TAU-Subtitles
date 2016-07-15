@@ -23,7 +23,17 @@
 	<div class="alerts-container">
 	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=2000>{{alert.msg}}</uib-alert>
     </div>
-		<div class="container-fluid" ng-show="subtitles.length > 0">
+
+    	<div class="container-fluid input-text-max-width" ng-hide="authenticated">
+    		<h1>TAU Sub</h1>
+    		<p>Please authenticate:</p>
+    		<p>User Name:<input type="text" class="form-control padding-div" ng-model="userId"> </p>
+    		<p>Password:<input type="password" class="form-control padding-div" ng-model="userPass"></p>
+    		
+    		<button class="btn btn-primary padding-div" ng-click="tryToAuthenticate()"> Login </button>
+    	</div>
+
+		<div class="container-fluid" ng-show="authenticated">
 			  <div class="jumbotron">
 			    <h1>TAU Sub</h1>
 			    <p><b>Play\Stop</b> - 'ctrl + Enter', <b>Save</b> - 'ctrl + shift + S'</p>
