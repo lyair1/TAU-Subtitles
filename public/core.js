@@ -1,7 +1,33 @@
 // Angular Code
 var app = angular.module('Tau-Subtitles', ['ngAnimate', 'ui.bootstrap']);
 
-app.controller('subtitleTableController',function subtitleTableController($scope, $http, $location) {
+app.controller('subtitleTableController',function subtitleTableController($scope, $http, $location, $interval) {
+
+
+	var saveFunc;
+    $scope.autoSave = function() {
+      // Don't start a new fight if we are already fighting
+      if ( angular.isDefined(saveFunc) ) return;
+
+      saveFunc = $interval(function() {
+      	// 4 for validating and saving file. 1 is not important but mandatory
+      	$scope.keyPressedFromTextBox(1, 4);
+        
+      }, 300000);
+    };
+
+    $scope.stopAutoSave = function() {
+      	if (angular.isDefined(saveFunc)) {
+	      	// canceling old autosave
+	        $interval.cancel(saveFunc);
+	        saveFunc = undefined;
+    	}
+    };
+
+    $scope.$on('$destroy', function() {
+      // Make sure that the interval is destroyed too
+      $scope.stopAutoSave();
+    });
 
 	$scope.guid = function(){
 		function s4() {
@@ -103,6 +129,8 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
 		var position = jwplayer().getPosition();
+		$scope.autoSave();
+
 		if (caseNum == 1) {
 			// Adding Row
 
@@ -147,8 +175,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 4) {	
 			// saving file
+			$scope.stopAutoSave();
 			$scope.sortSubtitles(false);
-
+			$scope.latestHash = "";
 			if($scope.valdiateSubs() != -1){
 				$scope.focusOnSubtitle
 				$scope.addAlertMessage("File was not saved. Fix errors", 'danger');
@@ -251,7 +280,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		for(var i = 0 ; i < subLen ; i++){
 			var message = $scope.validSubtitle($scope.subtitles[i]);
 			if(message.length > 0){
-				$scope.addAlertMessage($scope.validSubtitle($scope.subtitles[i]) + " at subtitle " + i, 'danger');
+				$scope.addAlertMessage($scope.validSubtitle($scope.subtitles[i]) + " at subtitle " + (i+1), 'danger');
 				return i;
 			}
 			// 2 subs starts at the same time
@@ -302,11 +331,11 @@ app.controller('subtitleTableController',function subtitleTableController($scope
   		}
 
   		if(sub.startTime >= sub.endTime){
-  			return "Start Time > End Time";
+  			return "Start Time >= End Time";
   		}
 
   		if (sub.endTime - sub.startTime > 15) {
-  			return "Subtitle Length > 15 sec"
+  			return "Subtitle Length > 15 Sec"
   		}
 
   		return "";
