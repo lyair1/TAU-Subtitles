@@ -24,15 +24,15 @@ app.all('/', function(req, res, next) {
  });
 
 
-// Create LDAP client
+// // Create LDAP client
 // var ldap = require('ldapjs');
 // var client = ldap.createClient({
-//   url: 'ldap://ldap.tau.ac.il:636'
+//   url: 'ldaps://ldaps.tau.ac.il:636'
 // });
 
 // // Bind LDAP server
 
-// client.bind('cn=tausub', '0546615116', function(err) {
+// client.bind('cn=videosubtitles ou=appusers o=tau', 'akdhgfhsiowh24jsg', function(err) {
 //   assert.ifError(err);
 //   console.log('Sucessfully bind ldap server.');
 // });
