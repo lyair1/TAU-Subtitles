@@ -24,11 +24,11 @@ app.all('/', function(req, res, next) {
  });
 
 
-// // Create LDAP client
-// var ldap = require('ldapjs');
-// var client = ldap.createClient({
-//   url: 'ldaps://ldaps.tau.ac.il:636'
-// });
+// Create LDAP client
+var ldap = require('ldapjs');
+var client = ldap.createClient({
+  url: 'ldap://ldap.tau.ac.il:636'
+});
 
 // // Bind LDAP server
 
@@ -258,7 +258,7 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-port = 80;
+port = 8080;
 app.listen(port);
 console.log("App listening on port " + port);
 
