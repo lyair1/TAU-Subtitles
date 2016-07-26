@@ -12,3 +12,9 @@
 .input-text-max-width{
 	max-width: 400px;
 }
+
+.my-align-center{
+	-webkit-align-content: center;
+    align-content: center;
+    text-align: center;
+}
