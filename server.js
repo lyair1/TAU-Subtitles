@@ -258,7 +258,7 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
 // });
 
 // listen (start app with node server.js) ======================================
-port = 8080;
+port = 80;
 app.listen(port);
 console.log("App listening on port " + port);
 
