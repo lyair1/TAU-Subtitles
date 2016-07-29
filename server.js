@@ -98,6 +98,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
   var creditsFilePath = path.join(gitVideoDir, videoId + "_credits.json");
   var randString = randomstring.generate(25);
   var srtFilePath = path.join(latestHashFolder, randString + ".srt");
+  var txtFilePath = path.join(latestHashFolder, randString + "_plain.txt");
   var chapterFilePath = path.join(publicChaptersDir + videoId, "latestChapter.srt");
 
   var subObj = mergeSubsToObject(req, latestJsonFilePath);
@@ -146,6 +147,17 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
         });
       });
 
+      fs.createFile(txtFilePath, function(err) {
+        fs.writeFile(txtFilePath, generateTextFile(subObj), function(err) {
+          if(err) {
+            return console.log(err);
+          }
+
+          console.log("text file was saved!");
+          
+        });
+      });
+
       fs.createFile(chapterFilePath, function(err) {
         fs.writeFile(chapterFilePath, generateSrtFile(subObj, true), function(err) {
           if(err) {
@@ -163,9 +175,16 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 
 app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
   var hashCode = req.params.hashCode;
-  var fileName = hashCode + ".srt";
+  var fileName;
 
-  console.log("Got a download request to retreive srt for hashCode: " + hashCode);
+  if(hashCode.endsWith("_plain")){
+      fileName = hashCode + ".txt";
+  }
+  else{
+      fileName = hashCode + ".srt";
+  }
+
+  console.log("Got a download request to retreive srt\\text for hashCode: " + hashCode);
 
   var filePath = latestHashFolder + fileName;
 
@@ -328,6 +347,21 @@ function generateSrtFile(subObj, chapters){
     srtFile += "\r\n";
 
     i++; 
+  });
+
+  return srtFile;
+}
+
+function generateTextFile(subObj){
+  var srtFile = "";
+  var i = 0;
+
+  subObj.forEach(function(line) {
+    srtFile += line.txt + '/';
+    i++;
+    if(i%3 ==0){
+      srtFile += "\r\n";
+    }
   });
 
   return srtFile;
