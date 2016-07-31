@@ -127,6 +127,24 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		jwplayer().seek(time);
 	}
 
+	$scope.addRow = function(i, position){
+		if ($scope.subtitles[i].endTime == -1) {
+			$scope.subtitles[i].endTime = position;
+		};
+		
+		var newSub = {
+			id:$scope.guid(),
+		    startTime:position,
+		    endTime:-1,
+		    txt:""
+		};
+		$scope.addedIds[newSub.id] = true;
+
+		if (i < $scope.subtitles.length) {
+			$scope.subtitles.splice(i, 0, newSub);
+		};
+	}
+
 	$scope.keyPressedFromTextBox = function(i, caseNum){
 		var position = jwplayer().getPosition();
 		$scope.autoSave();
@@ -134,21 +152,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 1) {
 			// Adding Row
 
-			if ($scope.subtitles[i].endTime == -1) {
-				$scope.subtitles[i].endTime = position;
-			};
-			
-			var newSub = {
-				id:$scope.guid(),
-			    startTime:position,
-			    endTime:-1,
-			    txt:""
-			};
-			$scope.addedIds[newSub.id] = true;
-
-			if (i < $scope.subtitles.length) {
-				$scope.subtitles.splice(i, 0, newSub);
-			};
+			$scope.addRow(i, position);
 		};
 		
 		if (caseNum == 2) {
@@ -205,6 +209,9 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 100) {
 			// Editing text
+			if($scope.subtitles[i].txt.length == 80){
+				$scope.addRow(i, position);
+			}
 			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
 
@@ -332,10 +339,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
   		if(sub.startTime >= sub.endTime){
   			return "Start Time >= End Time";
-  		}
-
-  		if (sub.endTime - sub.startTime > 15) {
-  			return "Subtitle Length > 15 Sec"
   		}
 
   		return "";
