@@ -69,7 +69,7 @@
 		        	<label class="switch-light switch-candy" onclick="">
   						<input type="checkbox" id="loop">
 						  <strong>
-						    Loop
+						    <b>Loop</b>
 						  </strong>
 						  <span>
 						    <span>Off</span>
@@ -77,6 +77,13 @@
 						    <a></a>
 						  </span>
 					</label>
+	       		</div>
+	       		<div class="col-md-1">
+		        	 <b>Video Play Speed:</b> {{speed}}
+	       		</div>
+	       		<div class="col-md-1">
+		        	 <b>Jump Length (Seconds):</b> 
+		        	 <input class="form-control" type="number" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required>
 	       		</div>
 	       	</div>
 			<div class="row">
@@ -105,14 +112,16 @@
 					      	<th class="col-md-1">#</th>
 					        <th class="col-md-1">Start Time</th>
 					        <th class="col-md-1">End Time</th>
-					        <th class="col-md-9">Text</th>
+					        <th class="col-md-1">Length</th>
+					        <th class="col-md-8">Text</th>
 					      </tr>
 					    </thead>
 					    <tbody>
 					      <tr ng-repeat="sub in subtitles track by $index" ng-class="validSubtitle(sub).length == 0 ? 'alert-success' : 'alert-danger'">
 					      	<td>{{subtitles.length - $index}}</td>
-					        <td ng-click="timeClick(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
+					        <td ng-click="jumpToTime(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
+					        <td>{{(sub.endTime >= sub.startTime) ? ticksToTimeString(sub.endTime - sub.startTime) : ticksToTimeString(-1)}}</td>
 					        <td>
 					        	<input type="text" class="form-control" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
 					        	{{validSubtitle(subtitles[$index])}}
@@ -127,8 +136,10 @@
 			    <b>Play\Stop</b> - 'ctrl + Enter',  <b>Save</b> - 'ctrl + shift + S',  
 			    <b>Add Row</b> - 'ctrl + S' \ Enter ,  <b>Remove Row</b> - 'ctrl + D',  
 			    <b>Set Start Time</b> - 'ctrl + G'<br> <b>Set Finish Time</b> - 'ctrl + F',  
-			    <b>Faster</b> - 'ctrl + Arrow Up',  <b>Slower</b> - 'ctrl + Arrow Down',  
-			    <b>Loop</b> - 'ctrl + L'
+			    <b>Faster</b> - 'ctrl + Up Arrow',  <b>Slower</b> - 'ctrl + Down Arrow ',  
+			    <b>Loop</b> - 'ctrl + L'<br> <b>Jump To Start Time</b> - 'ctrl + Left Arrow',  
+			    <b>Jump To End Time</b> - 'ctrl + Right Arrow' <br> <b>Jump Backward</b>
+			     - 'ctrl + shift + Left Arrow', <b>Jump Forward</b> - 'ctrl + shift + Right Arrow'
 			</div>
 	  </div>
 	</div>

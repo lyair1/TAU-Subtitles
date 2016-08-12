@@ -10,10 +10,38 @@ app.controller('subtitleTableController',function subtitleTableController($scope
       if ( angular.isDefined(saveFunc) ) return;
 
       saveFunc = $interval(function() {
+
+      	// count invalid subtitles
+      	var invalidSubs = 0;
+      	var invalidIndex = -1;
+
+		var subLen = $scope.subtitles.length;
+		for(var i = 0 ; i < subLen ; i++){
+			var message = $scope.validSubtitle($scope.subtitles[i]);
+			if(message.length > 0){
+				invalidSubs++;
+				invalidIndex = i;
+			}
+		}
+
+		if((invalidSubs == 1)){
+			$scope.addAlertMessage("28", 'success');
+			var sub = $scope.subtitles[invalidIndex]; 
+			if(sub.endTime > -1 && sub.endTime <= sub.startTime){
+				// We will not kick out this subtitle.. nothing to do
+				$scope.addAlertMessage("32", 'success');
+			}
+			else{
+      			// 3 for deleting row i
+				$scope.keyPressedFromTextBox(invalidIndex, 3);
+				$scope.addAlertMessage("37", 'success');
+			}
+		}
+
       	// 4 for validating and saving file. 1 is not important but mandatory
       	$scope.keyPressedFromTextBox(1, 4);
         
-      }, 300000);
+      }, 5000);
     };
 
     $scope.stopAutoSave = function() {
@@ -76,6 +104,8 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.updateLatest();
 
 	$scope.alerts = [];
+	$scope.jumpLength = 10;
+	$scope.specialChars = [186, 188, 190, 191, 220, 222];
 
 	// Ticks is in this <seconds>.<milliseconds>
 	$scope.ticksToTimeString = function(ticks){
@@ -123,26 +153,38 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		$scope.handleLoop(index);
 	}
 
-	$scope.timeClick = function(time){
+	$scope.jumpToTime = function(time){
 		jwplayer().seek(time);
 	}
 
-	$scope.addRow = function(i, position){
+	$scope.addRow = function(i, position, lastWordSplitted){
 		if ($scope.subtitles[i].endTime == -1) {
 			$scope.subtitles[i].endTime = position;
 		};
-		
+
+		newSubTxt = ""
+		if(lastWordSplitted){
+			var spaceLastOccurence = $scope.subtitles[i].txt.lastIndexOf(" ");
+
+			if(spaceLastOccurence != -1){
+				newSubTxt = $scope.subtitles[i].txt.substring(spaceLastOccurence + 1);
+				$scope.subtitles[i].txt = $scope.subtitles[i].txt.substring(0, spaceLastOccurence);
+			}
+		}
+
 		var newSub = {
 			id:$scope.guid(),
 		    startTime:position,
 		    endTime:-1,
-		    txt:""
+		    txt:newSubTxt
 		};
+
 		$scope.addedIds[newSub.id] = true;
 
 		if (i < $scope.subtitles.length) {
 			$scope.subtitles.splice(i, 0, newSub);
 		};
+
 	}
 
 	$scope.keyPressedFromTextBox = function(i, caseNum){
@@ -152,7 +194,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 1) {
 			// Adding Row
 
-			$scope.addRow(i, position);
+			$scope.addRow(i, position, false);
 		};
 		
 		if (caseNum == 2) {
@@ -164,6 +206,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 3) {
 			// Removing Row
 			$scope.handleRowDelete($scope.subtitles[i].id)
+			$scope.addAlertMessage("209", 'success');
 
 			if($scope.subtitles.length == 1){
 				$scope.subtitles[0].id = $scope.guid();
@@ -173,6 +216,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			}
 
 			if($scope.subtitles.length > 1){
+				$scope.addAlertMessage("219", 'success');
 				$scope.subtitles.splice(i,1);
 			}
 		}
@@ -182,7 +226,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.stopAutoSave();
 			$scope.sortSubtitles(false);
 			$scope.latestHash = "";
-			if($scope.valdiateSubs() != -1){
+			if($scope.validateSubs() != -1){
 				$scope.focusOnSubtitle
 				$scope.addAlertMessage("File was not saved. Fix errors", 'danger');
 				$scope.sortSubtitles(true);
@@ -207,11 +251,56 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			document.getElementById("loop").checked ^= true;
 		}
 
+		if (caseNum == 7) {
+			// jump to sub start time
+			$scope.jumpToTime($scope.subtitles[i].startTime);
+		}
+
+		if (caseNum == 8) {
+			// jump to sub end time
+			if($scope.subtitles[i].endTime != -1){
+				$scope.jumpToTime($scope.subtitles[i].endTime);
+			}
+		}
+
+		if (caseNum == 9) {
+			// decrease video speed
+			// Math.round handles floating point issue in javascript
+        	$scope.speed = Math.round(Math.min($scope.speed + 0.1, 2.0) * 100) / 100;
+        	$scope.changeSpeed($scope.speed);
+		}
+
+		if (caseNum == 10) {
+			// increase video speed
+			// Math.round handles floating point issue in javascript
+			$scope.speed = Math.round(Math.max($scope.speed - 0.1, 0.5) * 100) / 100;
+        	$scope.changeSpeed($scope.speed);
+		}
+
+		if (caseNum == 11) {
+			// Jump bacward by jumpLength
+			$scope.jumpToTime(Math.max(0, position - $scope.jumpLength));
+		}
+
+		if (caseNum == 12) {
+			// Jump forward by jumpLength
+			$scope.jumpToTime(position + $scope.jumpLength);
+		}
+
 		if (caseNum == 100) {
+			// Editing text with space
+			if($scope.subtitles[i].txt.length == 80){
+				$scope.addRow(i, position, false);
+			}
+			$scope.handleRowEdit($scope.subtitles[i].id)
+		}
+
+		if (caseNum == 101) {
 			// Editing text
 			if($scope.subtitles[i].txt.length == 80){
-				$scope.addRow(i, position);
+				$scope.addRow(i, position, true);
 			}
+
 			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
 
@@ -281,7 +370,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	}
 
 	// returns true if any times was changed
-	$scope.valdiateSubs = function(){
+	$scope.validateSubs = function(){
 		var subLen = $scope.subtitles.length;
 
 		for(var i = 0 ; i < subLen ; i++){
@@ -366,11 +455,26 @@ app.directive('myEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
         	// http://www.cambiaresearch.com/articles/15/javascript-key-codes
+
             if(event.ctrlKey && event.which == 83 && !event.shiftKey) { // ctrl + s - case #1
             	scope.$apply(function (){
                     scope.$eval(attrs.myEnter + ",1)");
                 });
 
+                event.preventDefault();
+            }
+
+            else if(event.ctrlKey && event.shiftKey && event.which == 37){ // ctrl + shift + left arrow
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",11)");
+                });
+                event.preventDefault();
+            }
+
+            else if(event.ctrlKey && event.shiftKey && event.which == 39){ // ctrl + shift + right arrow
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",12)");
+                });
                 event.preventDefault();
             }
 
@@ -432,22 +536,47 @@ app.directive('myEnter', function () {
                 event.preventDefault();
             }
 
+            else if(event.ctrlKey && !event.shiftKey && event.which == 37){ // ctrl + left arrow
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",7)");
+                });
+                event.preventDefault();
+            }
+
+            else if(event.ctrlKey && !event.shiftKey && event.which == 39){ // ctrl + right arrow
+            	scope.$apply(function (){
+                    scope.$eval(attrs.myEnter  + ",8)");
+                });
+                event.preventDefault();
+            }
+
             else if(event.ctrlKey && event.which == 38){ // ctrl + up arrow
-            	scope.speed = Math.min(scope.speed + 0.1, 2.0)
-            	scope.changeSpeed(scope.speed);
-            	event.preventDefault();
+            	scope.$apply(function (){
+            		scope.$eval(attrs.myEnter  + ",9)");
+                });
+            	event.preventDefault();	
             }
 			
 			else if(event.ctrlKey && event.which == 40){ // ctrl + down arrow
-				scope.speed = Math.max(scope.speed - 0.1, 0.5)
-            	scope.changeSpeed(scope.speed);
+            	scope.$apply(function (){
+            		scope.$eval(attrs.myEnter  + ",10)");
+                });
                 event.preventDefault();
             }
-            else if(event.which >= 33 && event.which <= 126){
+
+            else if((event.which >= 32 && event.which <= 126) || scope.specialChars.indexOf(event.which) > -1){
             	// if it's not one of the above, than the user edited the text
-            	scope.$apply(function (){
-                    scope.$eval(attrs.myEnter  + ",100)");
-                });
+            	if(event.which == 32){ // space is a special case
+	            	scope.$apply(function (){
+                		scope.$eval(attrs.myEnter  + ",100)");
+                	});
+            	}
+            	else{
+	            	scope.$apply(function (){
+	                    scope.$eval(attrs.myEnter  + ",101)");
+	                });
+            	}
+
             }
         });
     };
