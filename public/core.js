@@ -25,23 +25,20 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		}
 
 		if((invalidSubs == 1)){
-			$scope.addAlertMessage("28", 'success');
 			var sub = $scope.subtitles[invalidIndex]; 
 			if(sub.endTime > -1 && sub.endTime <= sub.startTime){
 				// We will not kick out this subtitle.. nothing to do
-				$scope.addAlertMessage("32", 'success');
 			}
 			else{
       			// 3 for deleting row i
 				$scope.keyPressedFromTextBox(invalidIndex, 3);
-				$scope.addAlertMessage("37", 'success');
 			}
 		}
 
       	// 4 for validating and saving file. 1 is not important but mandatory
       	$scope.keyPressedFromTextBox(1, 4);
         
-      }, 5000);
+      }, 300000);
     };
 
     $scope.stopAutoSave = function() {
@@ -206,7 +203,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		if (caseNum == 3) {
 			// Removing Row
 			$scope.handleRowDelete($scope.subtitles[i].id)
-			$scope.addAlertMessage("209", 'success');
 
 			if($scope.subtitles.length == 1){
 				$scope.subtitles[0].id = $scope.guid();
@@ -216,7 +212,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			}
 
 			if($scope.subtitles.length > 1){
-				$scope.addAlertMessage("219", 'success');
 				$scope.subtitles.splice(i,1);
 			}
 		}
