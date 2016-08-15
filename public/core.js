@@ -284,9 +284,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 100) {
 			// Editing text with space
-			if($scope.subtitles[i].txt.length == 80){
+			if($scope.subtitles[i].txt.length >= 79){
 				$scope.addRow(i, position, false);
 			}
+
 			$scope.handleRowEdit($scope.subtitles[i].id)
 		}
 

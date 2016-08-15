@@ -123,7 +123,7 @@
 					        <td>{{ticksToTimeString(sub.endTime)}}</td>
 					        <td>{{(sub.endTime >= sub.startTime) ? ticksToTimeString(sub.endTime - sub.startTime) : ticksToTimeString(-1)}}</td>
 					        <td>
-					        	<input type="text" class="form-control" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
+					        	<input type="text" class="form-control" ng-trim="false" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
 					        	{{validSubtitle(subtitles[$index])}}
 					        </td>
 					      </tr>
