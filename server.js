@@ -1,7 +1,26 @@
 
 // set up ========================
 var express  = require('express');
-var app      = express();                               // create our app w/ express
+var fs = require("fs")
+
+var https = require('https');
+var privateKey  = fs.readFileSync('./../../../etc/pki/tls/private/localhost.key', 'utf8');
+var certificate = fs.readFileSync('./../../../etc/pki/tls/certs/localhost.crt', 'utf8');
+var cauth = fs.readFileSync('./../../../etc/pki/tls/certs/ca-bundle.trust.crt', 'utf8');
+
+var credentials = {ca: cauth, key: privateKey, cert: certificate};
+var app = express();
+
+var httpsServer = https.createServer(credentials, app);
+
+// httpsServer.listen(8443);
+
+
+// var privateKey = fs.readFileSync('./../../../etc/pki/tls/private/localhost.key').toString();
+// var certificate = fs.readFileSync('./../../../etc/pki/tls/certs/localhost.crt').toString();
+// var certificateAuthority = fs.readFileSync('./../../../etc/pki/tls/certs/ca-bundle.trust.crt').toString();
+// var app = express.createServer({key: privateKey, cert: certificate, ca: certificateAuthority});
+
 var mongoose = require('mongoose');                     // mongoose for mongodb
 var morgan = require('morgan');             // log requests to the console (express4)
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
@@ -14,6 +33,7 @@ var baseDir = "";
 var fileSystemDir = "/root/SubtitlesRoot/";
 var publicChaptersDir = "/root/main/FinalProject/public/Chapters/"
 var latestHashFolder = fileSystemDir + "/hash/";
+var assert = require('assert');
 
 // Cross domain
 
@@ -23,19 +43,21 @@ app.all('/', function(req, res, next) {
   next();
  });
 
+// Ignore self signed certificate
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-// Create LDAP client
+// // Create LDAP client
 var ldap = require('ldapjs');
 var client = ldap.createClient({
-  url: 'ldap://ldap.tau.ac.il:636'
-});
+url: 'ldaps://ldap.tau.ac.il:636'
+ });
 
 // // Bind LDAP server
 
-// client.bind('cn=videosubtitles ou=appusers o=tau', 'akdhgfhsiowh24jsg', function(err) {
-//   assert.ifError(err);
-//   console.log('Sucessfully bind ldap server.');
-// });
+client.bind("cn=videosubtitles,ou=appusers,o=tau", 'akdhgfhsiowh24jsg', function(err) {
+   assert.ifError(err);
+   console.log('Sucessfully bind ldap server.');
+ });
 
 // configuration =================
 
@@ -58,32 +80,64 @@ var Subtitles = mongoose.model('Subtitles', {
 // // api ---------------------------------------------------------------------
 app.post('/api/auth', function(req, res) {
     var userId = req.body.userId;
-    var pass = req.body.pass;
+    var userPass = req.body.userPass;
 
-    // var opts = {
-    //   filter: '(&(objectclass=user)(uid='+userId+pass+'))',
-    //   scope: 'sub',
-    //   attributes: ['dn', 'sn', 'cn']
-    // };
+    var resp = {auth: false, mail: "", fullName: ""};
 
-    // client.search('o=example', opts, function(err, res) {
-    //   assert.ifError(err);
+    if (!userId || !userPass){
+      res.send(resp);
+      return;
+    }
 
-    //   res.on('searchEntry', function(entry) {
-    //     console.log('entry: ' + JSON.stringify(entry.object));
-    //   });
-    //   res.on('searchReference', function(referral) {
-    //     console.log('referral: ' + referral.uris.join());
-    //   });
-    //   res.on('error', function(err) {
-    //     console.error('error: ' + err.message);
-    //   });
-    //   res.on('end', function(result) {
-    //     console.log('status: ' + result.status);
-    //   });
-    // });
+    var opts = {
+      filter: '(&(objectclass=user)(uid='+userId+'))',
+      scope: 'sub',//default is sub tree
+      attributes: ['dn','mail','fullName']
+    };
 
-    res.send('authenticated');
+    client.search('o=tau', opts, function(err, ldapRes) {
+      console.log("Got response from ldap");
+
+      ldapRes.on('searchEntry', function(entry) {
+        console.log('entry: ' + JSON.stringify(entry.object));
+        var userDn = entry.object.dn;
+        if (userDn != null){
+            var usrClient = ldap.createClient({
+              url: 'ldaps://ldap.tau.ac.il:636'
+            });
+            usrClient.bind(userDn, userPass, function(err) {
+               console.log("ERROR:" + err)
+               if (err != null) {
+                  console.error("Could not bind user to ldap server: " + err);
+                  res.send(resp);
+                  assert.ifError(err);
+               }
+               console.log('Sucessfully bind user to ldap server!');
+               resp.auth = true;
+               resp.mail = entry.object.mail;
+               resp.fullName = entry.object.fullName;
+               res.send(resp);
+             });
+        }
+
+      });
+
+      ldapRes.on('searchReference', function(referral) {
+        console.log('referral: ' + referral.uris.join());
+      });
+      ldapRes.on('error', function(err) {
+        console.error('error: ' + err.message);
+      });
+      ldapRes.on('end', function(result) {
+        console.log('status: ' + result.status);
+      });
+
+    });
+
+    setTimeout(function(){
+      console.log("Return auth=false because of time out.");
+      res.send(resp);
+    },3000);
 });
 
 
@@ -232,53 +286,10 @@ app.get('/api/getLatestJsonSub/:videoId', function(req, res){
   });
 });
 
-
-// // create todo and send back all todos after creation
-// app.post('/api/todos', function(req, res) {
-
-//     // create a todo, information comes from AJAX request from Angular
-//     Subtitles.create({
-//         text : req.body.text,
-//         done : false
-//     }, function(err, todo) {
-//         if (err)
-//             res.send(err);
-
-//         // get and return all the todos after you create another
-//         Subtitles.find(function(err, todos) {
-//             if (err)
-//                 res.send(err)
-//             res.json(todos);
-//         });
-//     });
-
-// });
-
-// // delete a todo
-// app.delete('/api/todos/:todo_id', function(req, res) {
-//     Subtitles.remove({
-//         _id : req.params.todo_id
-//     }, function(err, todo) {
-//         if (err)
-//             res.send(err);
-
-//         // get and return all the todos after you create another
-//         Subtitles.find(function(err, todos) {
-//             if (err)
-//                 res.send(err)
-//             res.json(todos);
-//         });
-//     });
-// });
-
-// application -------------------------------------------------------------
-// app.get('*', function(req, res) {
-//     res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
-// });
-
 // listen (start app with node server.js) ======================================
-port = 80;
-app.listen(port);
+port = 443;
+
+httpsServer.listen(port);
 console.log("App listening on port " + port);
 
 cmd.get(

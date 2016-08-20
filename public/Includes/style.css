@@ -18,3 +18,8 @@
     align-content: center;
     text-align: center;
 }
+
+.full-width{
+	width: 100%;
+	height: 250px;
+}

@@ -59,6 +59,8 @@
     		<p>Password:<input type="password" class="form-control padding-div" ng-model="userPass"></p>
     		
     		<button class="btn btn-primary padding-div" ng-click="tryToAuthenticate()"> Login </button>
+    		<br/>
+    		<uib-alert type="danger" ng-show="failedToAuthenticate">Wrong User Name Or Password! Please Try Again.</uib-alert>
     	</div>
 
 		<div class="container-fluid" ng-show="authenticated">
@@ -88,7 +90,7 @@
 	       	</div>
 			<div class="row">
 			    <div class="col-md-4">
-			        <div id="videoFrame" title="TAU Webcast video player">
+			        <div id="videoFrame" title="TAU Webcast video player" class="my-align-center full-width">
 			            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
 			                <img src='./Content/Img/filmPlaceHolder.jpg'>
 			            </a>
@@ -104,7 +106,6 @@
 
 			         </div>
 				</div>
-
 				<div class="col-md-8" style="overflow-y: scroll; height:400px;">
 					<table class="table">
 					    <thead>
@@ -192,6 +193,8 @@
 	var httpUrl1 = "http" + videoUrl + "manifest.mpd";
 	var httpUrl2 = "http" + videoUrl + "playlist.m3u8";
 	var chaptersStr = '/Chapters/' + videoId + '/latestChapter.srt';
+	var width_ = 512;
+	var height_ = 288;
 
 	if (navigator.userAgent.match(/android/i) != null){
 	    playerInstance.setup({
@@ -216,7 +219,9 @@
 			    kind:'chapters'
 			  }],
 	        autostart: 'false'
-	    	}]
+	    	}],
+	    	"height": height_,
+  			"width": width_,
 	    });
 	    
 	    jQuery('.reloadMovie').on('click', function(){
@@ -232,7 +237,9 @@
 	            primary: 'html5',
 	            autostart: 'false',
 	            controls: '1'
-	        	}]
+	        	}],
+	    	"height": height_,
+  			"width": width_,
 	        });
 	    })
 

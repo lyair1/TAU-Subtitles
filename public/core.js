@@ -89,8 +89,11 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.userId = $scope.getQueryVariable("user");
 	$scope.userPass = "";
+	$scope.userFullName = "";
+	$scope.userEmail = "";
 	$scope.videoId = $scope.getQueryVariable("id");
 	$scope.authenticated = false;
+	$scope.failedToAuthenticate = false;
 
 	$scope.subtitles = [];
 
@@ -138,10 +141,18 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.tryToAuthenticate = function(){
 		//alert("Trying to authenticate with:" + $scope.userId + " and " + $scope.userPass);
 
-		var data = {userId:$scope.userId, userPass : $scope.pass};
+		var data = {userId:$scope.userId, userPass : $scope.userPass};
 
 		$http.post("/api/auth", data).success(function(data, status) {
-			$scope.authenticated = data == "authenticated";
+			$scope.userPass = "";
+			if (data.auth) {
+				$scope.authenticated = data.auth;
+				$scope.userEmail = data.mail;
+				$scope.userFullName = data.fullName;
+			}else{
+				$scope.failedToAuthenticate = true;
+			}
+			
         });
 	}
 
