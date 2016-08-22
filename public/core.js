@@ -3,10 +3,9 @@ var app = angular.module('Tau-Subtitles', ['ngAnimate', 'ui.bootstrap']);
 
 app.controller('subtitleTableController',function subtitleTableController($scope, $http, $location, $interval) {
 
-
 	var saveFunc;
     $scope.autoSave = function() {
-      // Don't start a new fight if we are already fighting
+      // Don't start a autoSave if we are already autoSaving
       if ( angular.isDefined(saveFunc) ) return;
 
       saveFunc = $interval(function() {
@@ -31,14 +30,15 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			}
 			else{
       			// 3 for deleting row i
+      			$scope.invalidSub = sub;
 				$scope.keyPressedFromTextBox(invalidIndex, 3);
 			}
 		}
 
       	// 4 for validating and saving file. 1 is not important but mandatory
       	$scope.keyPressedFromTextBox(1, 4);
-        
-      }, 300000);
+
+      }, 600000);
     };
 
     $scope.stopAutoSave = function() {
@@ -70,6 +70,13 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	       	else{
 	       		$scope.subtitles = data;
 	       	}
+
+			if($scope.invalidSub != undefined){
+				$scope.subtitles.splice(0, 0, $scope.invalidSub);
+				$scope.addedIds[$scope.invalidSub.id] = true;
+				$scope.invalidSub = undefined;
+			}
+
 	       	$scope.sortSubtitles(true);
 	    });
   	}
@@ -102,6 +109,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.editedIds = {};
 
 	$scope.updateLatest();
+	$scope.invalidSub = undefined;
 
 	$scope.alerts = [];
 	$scope.jumpLength = 10;
@@ -201,7 +209,6 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 1) {
 			// Adding Row
-
 			$scope.addRow(i, position, false);
 		};
 		
@@ -358,11 +365,12 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 			$scope.addAlertMessage("File saved.", 'success');
 			$scope.latestHash = data;
 			$scope.updateLatest();
+
+	        $scope.deletedIds =[];
+	        $scope.addedIds =[];
+	        $scope.editedIds =[];
         });
 
-        deletedIds =[];
-        addedIds =[];
-        editedIds =[];
 	}
 
 	$scope.sortSubtitles = function(backwards){
