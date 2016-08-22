@@ -64,65 +64,88 @@
     	</div>
 
 		<div class="container-fluid" ng-show="authenticated">
-	  		<div class="row">
-				<div class="col-md-4">
-		        </div>				
-		        <div class="col-md-1">
-		        	<label class="switch-light switch-candy" onclick="">
-  						<input type="checkbox" id="loop">
-						  <strong>
-						    <b>Loop</b>
-						  </strong>
-						  <span>
-						    <span>Off</span>
-						    <span>On</span>
-						    <a></a>
-						  </span>
-					</label>
-	       		</div>
-	       		<div class="col-md-1">
-		        	 <b>Video Play Speed:</b> {{speed}}
-	       		</div>
-	       		<div class="col-md-1">
-		        	 <b>Jump Length (Seconds):</b> 
-		        	 <input class="form-control" type="number" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required>
-	       		</div>
-	       	</div>
 			<div class="row">
 			    <div class="col-md-4">
-			        <div id="videoFrame" title="TAU Webcast video player" class="my-align-center full-width">
-			            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
-			                <img src='./Content/Img/filmPlaceHolder.jpg'>
-			            </a>
-			        </div>
-			        <div class="padding-div">
-			        	    <button class="btn btn-primary" ng-click="keyPressedFromTextBox(0,4)">
-					            Save
-					        </button>
-			        </div>
-			         <div class="padding-div" ng-show="latestHash.length > 0">
-			         	Your Hash Is: {{latestHash}} - <a href="/api/getLatestSubtitles/{{latestHash}}">Download Srt</a> 
-			         	<a href="/api/getLatestSubtitles/{{latestHash}}_plain">Download Plain txt</a>
+		        	<div class="row"> </div>
+		        	<div class="row">		
+			    		<div class="col-md-1"></div>
 
-			         </div>
+				        <div id="videoFrame" title="TAU Webcast video player" class="my-align-center full-width">
+				            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
+				                <img src='./Content/Img/filmPlaceHolder.jpg'>
+				            </a>
+				        </div>
+				    </div>
+		        	<div class="row">		
+			    	<div class="col-md-1"></div>
+
+				        <div class="col-md-1">
+				        	    <button class="btn btn-primary" ng-click="keyPressedFromTextBox(0,4)">
+						            Save
+						        </button>
+				        </div>
+				         <div class="col-md-10" ng-show="latestHash.length > 0">
+				         	Your Hash Is: {{latestHash}} - <a href="/api/getLatestSubtitles/{{latestHash}}">Download Srt</a> 
+				         	<a href="/api/getLatestSubtitles/{{latestHash}}_plain">Download Plain txt</a>
+
+				         </div>
+				     </div>
+			         <div class="row">		
+				        <div class="col-md-2"> </div>
+				        <div class="col-md-2">
+				        	<label class="switch-light switch-candy" onclick="">
+		  						<input type="checkbox" id="loop">
+								  <strong>
+								    <b>Loop</b>
+								  </strong>
+								  <span>
+								    <span>Off</span>
+								    <span>On</span>
+								    <a></a>
+								  </span>
+							</label>
+			       		</div>
+			       		<div class="col-md-2">
+				        	 <b>Video Play Speed:</b> {{speed}}
+			       		</div>
+			       		<div class="col-md-2">
+				        	 <b>Jump Length (Seconds):</b> 
+				        	 <input class="form-control" type="number" style="text-align:center;" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required>
+			       		</div>
+			       	</div>
+
+					<div class="row">		
+
+						<div class="alert alert-info my-align-center padding-div" role="alert">
+						    <b>Play\Stop</b> - 'ctrl + Enter',  <b>Save</b> - 'ctrl + shift + S',  
+						    <b>Add Row</b> - 'ctrl + S' \ Enter ,  <b>Remove Row</b> - 'ctrl + D',  
+						    <b>Set Start Time</b> - 'ctrl + G'<br> <b>Set Finish Time</b> - 'ctrl + F',  
+						    <b>Faster</b> - 'ctrl + Up Arrow',  <b>Slower</b> - 'ctrl + Down Arrow ',  
+						    <b>Loop</b> - 'ctrl + L'<br> <b>Jump To Start Time</b> - 'ctrl + Left Arrow',  
+						    <b>Jump To End Time</b> - 'ctrl + Right Arrow' <br> <b>Jump Backward</b>
+						     - 'ctrl + shift + Left Arrow', <b>Jump Forward</b> - 'ctrl + shift + Right Arrow'
+						</div>
+
+					</div>
+
 				</div>
-				<div class="col-md-8" style="overflow-y: scroll; height:400px;">
+				<div class="col-md-8" style="overflow-y: scroll; height:600px;">
 					<table class="table">
 					    <thead>
 					      <tr>
-					      	<th class="col-md-1">#</th>
-					        <th class="col-md-1">Start Time</th>
-					        <th class="col-md-1">End Time</th>
-					        <th class="col-md-1">Length</th>
-					        <th class="col-md-8">Text</th>
+					      	<th class="col-xs-1">#</th>
+					        <th class="col-xs-1">Start Time</th>
+					        <th class="col-xs-1">End Time</th>
+					        <th class="col-xs-1">Length</th>
+					        <th class="col-xs-8">Text</th>
 					      </tr>
 					    </thead>
 					    <tbody>
 					      <tr ng-repeat="sub in subtitles track by $index" ng-class="validSubtitle(sub).length == 0 ? 'alert-success' : 'alert-danger'">
 					      	<td>{{subtitles.length - $index}}</td>
-					        <td ng-click="jumpToTime(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime)}}</td>
-					        <td>{{ticksToTimeString(sub.endTime)}}</td>
-					        <td>{{(sub.endTime >= sub.startTime) ? ticksToTimeString(sub.endTime - sub.startTime) : ticksToTimeString(-1)}}</td>
+					        <td ng-click="jumpToTime(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime, false)}}</td>
+					        <td>{{ticksToTimeString(sub.endTime, false)}}</td>
+					        <td>{{(sub.endTime >= sub.startTime) ? ticksToTimeString(sub.endTime - sub.startTime, false) : ticksToTimeString(-1)}}</td>
 					        <td>
 					        	<input type="text" class="form-control" ng-trim="false" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
 					        	{{validSubtitle(subtitles[$index])}}
@@ -133,15 +156,7 @@
 				</div>
 			</div>
 			</br>
-			<div class="alert alert-info my-align-center padding-div" role="alert">
-			    <b>Play\Stop</b> - 'ctrl + Enter',  <b>Save</b> - 'ctrl + shift + S',  
-			    <b>Add Row</b> - 'ctrl + S' \ Enter ,  <b>Remove Row</b> - 'ctrl + D',  
-			    <b>Set Start Time</b> - 'ctrl + G'<br> <b>Set Finish Time</b> - 'ctrl + F',  
-			    <b>Faster</b> - 'ctrl + Up Arrow',  <b>Slower</b> - 'ctrl + Down Arrow ',  
-			    <b>Loop</b> - 'ctrl + L'<br> <b>Jump To Start Time</b> - 'ctrl + Left Arrow',  
-			    <b>Jump To End Time</b> - 'ctrl + Right Arrow' <br> <b>Jump Backward</b>
-			     - 'ctrl + shift + Left Arrow', <b>Jump Forward</b> - 'ctrl + shift + Right Arrow'
-			</div>
+
 	  </div>
 	</div>
 </body>

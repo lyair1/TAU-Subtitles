@@ -116,12 +116,12 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.specialChars = [186, 188, 190, 191, 220, 222];
 
 	// Ticks is in this <seconds>.<milliseconds>
-	$scope.ticksToTimeString = function(ticks){
+	$scope.ticksToTimeString = function(ticks, showMilliseconds = true){
 		if (ticks < 0) {
 			return "--:--:--";
 		};
 
-		var milisecond = parseInt((ticks*1000)%1000); 
+		var milisecond = showMilliseconds ? parseInt((ticks*1000)%1000) : parseInt((ticks*100)%100); 
 		var sec = parseInt(ticks%60);
 		var min = parseInt(((ticks%3600)/60));
 		var hour = parseInt((ticks/3600));
