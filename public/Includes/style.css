@@ -9,6 +9,20 @@
 	padding-top: 5px;
 }
 
+.padding-left-right{
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.padding-up-down {
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.full-height {
+	height:100vh;
+}
+
 .input-text-max-width{
 	max-width: 400px;
 }
@@ -22,4 +36,16 @@
 .full-width{
 	width: 100%;
 	height: 250px;
+}
+
+.small-width{
+	width: 100px;
+}
+
+.medium-width{
+	width: 150px;
+}
+
+.video-padding-top{
+	padding-top: 37px;
 }
