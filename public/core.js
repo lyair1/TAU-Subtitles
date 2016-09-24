@@ -94,11 +94,13 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	    }
 	}
 
-	$scope.userId = $scope.getQueryVariable("user");
 	$scope.userPass = "";
 	$scope.userFullName = "";
 	$scope.userEmail = "";
 	$scope.videoId = $scope.getQueryVariable("id");
+	$scope.userId = getQueryVariable("user");
+	$scope.token = $scope.getQueryVariable("token");
+	$http.defaults.headers.common['Authorization'] = "Bearer " + $scope.token;
 	$scope.authenticated = false;
 	$scope.failedToAuthenticate = false;
 
@@ -108,7 +110,10 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.addedIds = {};
 	$scope.editedIds = {};
 
-	$scope.updateLatest();
+	if($scope.token){
+		$scope.updateLatest();		
+	}
+
 	$scope.invalidSub = undefined;
 
 	$scope.alerts = [];
@@ -146,17 +151,18 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 		return hourStr + ":" + minStr + ":" + secStr + milisecondStr;
 	};
 
-	$scope.tryToAuthenticate = function(){
-		//alert("Trying to authenticate with:" + $scope.userId + " and " + $scope.userPass);
-
+	$scope.tryToAuthenticate = function(_videoId){
 		var data = {userId:$scope.userId, userPass : $scope.userPass};
 
 		$http.post("/api/auth", data).success(function(data, status) {
 			$scope.userPass = "";
 			if (data.auth) {
-				$scope.authenticated = data.auth;
-				$scope.userEmail = data.mail;
-				$scope.userFullName = data.fullName;
+				// $scope.authenticated = data.auth;
+				// $scope.userEmail = data.mail;
+				// $scope.userFullName = data.fullName;
+				// $http.defaults.headers.post.Authorization = "Bearer " + data.token;
+
+				window.location = "http://lool.tau.ac.il/subtitle.html?token=" + data.token +"&id=" +_videoId;
 			}else{
 				$scope.failedToAuthenticate = true;
 			}

@@ -1,0 +1,279 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en-US">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<script src="/includes/jquery.min.js" type="text/javascript"></script>
+	<script src="/includes/jquery-migrate.min.js" type="text/javascript"></script>
+	<script src="/includes/angular.js"></script>
+    <script src="/includes/angular-animate.js"></script>
+    <script src="/includes/ui-bootstrap-tpls-1.3.2.min.js"></script>
+    <script src="core.js"></script>
+    <link href="/includes/bootstrap.min.css" rel="stylesheet">
+    <link href="/includes/toggle-switch.css" rel="stylesheet">
+	<script type="text/javascript" src="/includes/jwplayer/jwplayer.js"></script>
+	<script type="text/javascript">jwplayer.key="+rrlB3wprn26V24N1tGu0ATArz7gd0p/Y/e7DJfsBSw=";</script>	
+	
+	<link rel="stylesheet" href="/includes/style.css" />
+	
+	<link rel="stylesheet" href="./TauSub_files/magnific-popup.css" type="text/css">
+  	<link rel="stylesheet" href="./TauSub_files/template.css" type="text/css">
+  	<link rel="stylesheet" href="./TauSub_files/template(1).css" type="text/css">
+  	<link href="./TauSub_files/css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div ng-app="Tau-Subtitles" ng-controller="subtitleTableController">
+	<div class="alerts-container">
+	 	<uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout=5000>{{alert.msg}}</uib-alert>
+    </div>
+
+   	<div class="header container visible-desktop">
+		<div class="row-fluid">
+			<div class="span7">
+				<div class="logo tau-logo pull-left">
+					<a href="http://video.tau.ac.il/events">
+						<img src="./TauSub_files/logo-tau.png" alt="Tel Aviv University">
+					</a>
+				</div>
+				<div class="logo tau-webcast pull-left">
+					<a href="http://video.tau.ac.il/events">
+						<img src="./TauSub_files/logo-webcast.png" alt="TAU WEBCAST">
+					</a>
+				</div>
+			</div>
+
+			<div class="span5">
+				<h1 class="pull-right">Digital Media Services | <a href="http://video.tau.ac.il/events">
+					<strong>Events</strong>
+				</a></h1>
+			</div>
+		</div>
+	</div>
+
+    	<div class="container-fluid">
+    		<div class="row full-height"> <!-- Open Row #1 -->
+    				<div class="col-md-4 video-padding-top"> <!-- Video Player Col -->
+    					<div id="videoFrame" title="TAU Webcast video player" class="my-align-center full-width">
+				            <a href="rtsp://vod.tau.ac.il:80/Courses/_definst_/mp4:0111/1216/0111121601-20152-12179.mp4">
+				                <img src='./Content/Img/filmPlaceHolder.jpg'>
+				            </a>
+				        </div>
+				        <div>
+				        	Can't see the video? <a href="https://support.google.com/chrome/answer/1342714?hl=en">click here</a>
+				        </div>
+
+				        <div class="padding-left-right padding-up-down">
+			        	    <button class="btn btn-primary" ng-click="keyPressedFromTextBox(0,4)">Save</button>
+				        </div>
+				        <div class="col-md-10 padding-up-down" ng-show="latestHash.length > 0">
+				         	Your Hash Is: {{latestHash}} - <a href="/api/getLatestSubtitles/{{latestHash}}">Download Srt</a> 
+				         	<a href="/api/getLatestSubtitles/{{latestHash}}_plain">Download Plain txt</a>
+				        </div>
+
+				        <div class="padding-left-right padding-up-down">
+				        	<p>
+				        	<div class="medium-width">
+					        	<label class="switch-light switch-candy" onclick="">
+			  						<input type="checkbox" id="loop">
+									  <strong>
+									    <b>   Loop</b>
+									  </strong>
+										  <span>
+										    <span>Off</span>
+										    <span>On</span>
+										    <a></a>
+										  </span>
+								</label>
+							</div>
+				        	 <b>Video Play Speed:</b> {{speed}}
+				        	 <br>
+				        	 <b>Jump Length (Seconds):</b> 
+				        	 <input class="form-control small-width" type="number" style="text-align:center;" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required>
+			       		</p></div>
+			       		<div class="padding-left-right padding-up-down">
+				       		<div class="alert alert-info padding-left-right padding-up-down"><p>
+				       			<table>
+				       				<tr>
+				       					<td><b>Play\Stop</b> - 'ctrl+Enter'</td>
+				       					<td><b>Save</b> - 'ctrl+shift+S'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Add Row</b> - 'ctrl+S' \ Enter</td>
+				       					<td><b>Remove Row</b> - 'ctrl+D'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Set Start Time</b> - 'ctrl+G'</td>
+				       					<td><b>Set End Time</b> - 'ctrl+F'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Faster</b> - 'ctrl+Up Arrow'</td>
+				       					<td><b>Slower</b> - 'ctrl+Down Arrow'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Loop</b> - 'ctrl+L'</td>
+				       					<td><b>Jump To Start</b> - 'ctrl+(<-)'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Jump To End</b> - 'ctrl+(->)'</td>
+				       					<td><b>Jump Backward</b> - 'ctrl+shift+(->)'</td>
+				       				</tr>
+				       				<tr>
+				       					<td><b>Jump Forward</b> - 'ctrl+shift+(<-)'</td>
+				       					<td></td>
+				       				</tr>
+				       			</table>
+							</div>
+						</div>
+    				</div> <!-- Close Video Player Col -->
+    				<div class="col-md-8" style="overflow-y: scroll; height:100%;"> <!-- Subtitles Col -->
+						<table class="table">
+						    <thead>
+						      <tr>
+						      	<th class="col-xs-1">#</th>
+						        <th class="col-xs-1">Start Time</th>
+						        <th class="col-xs-1">End Time</th>
+						        <th class="col-xs-1">Length</th>
+						        <th class="col-xs-8">Text</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						      <tr ng-repeat="sub in subtitles track by $index" ng-class="validSubtitle(sub).length == 0 ? 'alert-success' : 'alert-danger'">
+						      	<td>{{subtitles.length - $index}}</td>
+						        <td ng-click="jumpToTime(sub.startTime)" onmouseover="" style="cursor: pointer;">{{ticksToTimeString(sub.startTime, false)}}</td>
+						        <td>{{ticksToTimeString(sub.endTime, false)}}</td>
+						        <td>{{(sub.endTime >= sub.startTime) ? ticksToTimeString(sub.endTime - sub.startTime, false) : ticksToTimeString(-1)}}</td>
+						        <td>
+						        	<input type="text" class="form-control" ng-trim="false" maxlength="80" ng-model="sub.txt" ng-click="subClick($index)" my-enter="keyPressedFromTextBox($index" >
+						        	{{validSubtitle(subtitles[$index])}}
+						        </td>
+						      </tr>
+						    </tbody>
+						 </table>
+					</div> <!-- Close Subtitle Col -->
+    		</div> <!-- Close Row #1 -->
+    	</div>
+</body>
+</html>
+
+
+<script type="text/javascript">
+	var playerInstance = jwplayer("videoFrame");
+
+
+	var getQueryVariable = function(variable) {
+	    var query = window.location.search.substring(1);
+	    var vars = query.split('&');
+	    for (var i = 0; i < vars.length; i++) {
+	        var pair = vars[i].split('=');
+	        if (decodeURIComponent(pair[0]) == variable) {
+	            return decodeURIComponent(pair[1]);
+	        }
+	    }
+	}
+
+	var videoId = getQueryVariable("id");
+	var userId = getQueryVariable("user");
+
+	var getVideoUrlFromParam = function(videoId){
+		if (!videoId) {
+			return "";
+		}
+
+		var baseUrl = "://vod.tau.ac.il:80/Courses/_definst_/mp4:";
+		var part1 = videoId.substring(0,4);
+		var part2 = videoId.substring(4,8);
+		var part3 = videoId.substring(8,10);
+		var part4 = videoId.substring(10,15);
+		var part5 = videoId.substring(15,20);
+
+		return baseUrl + part1 + "/" + part2 + "/" + part1 + part2 + part3 + "-" + part4 + "-" + part5 + ".mp4/";
+	}
+
+	var getImageUrlFromParam = function(videoId){
+		if (!videoId) {
+			return "";
+		}
+
+		var baseUrl = "http://video.tau.ac.il/files/";
+		var part1 = videoId.substring(0,4);
+		var part2 = videoId.substring(4,8);
+		var part3 = videoId.substring(8,10);
+		var part4 = videoId.substring(10,15);
+		var part5 = videoId.substring(15,20);
+
+		return baseUrl + part1 + "/" + part2 + "/" + part1 + part2 + part3 + "-" + part4 + "-" + part5 + ".jpg";
+	}
+
+	var videoUrl = getVideoUrlFromParam(videoId);
+	var imageUrl = getImageUrlFromParam(videoId);
+
+	var rtmpUrl = "rtmp" + videoUrl + "playlist.m3u8";
+	var httpUrl1 = "http" + videoUrl + "manifest.mpd";
+	var httpUrl2 = "http" + videoUrl + "playlist.m3u8";
+	var chaptersStr = '/Chapters/' + videoId + '/latestChapter.srt';
+
+	if (navigator.userAgent.match(/android/i) != null){
+	    playerInstance.setup({
+	    	playlist: [{
+	        file: rtmpUrl,
+	        image: imageUrl,
+            tracks: [{
+			    file: chaptersStr,
+			    kind:'chapters'
+			  }],
+	        type: 'mp4',
+	        primary: 'html5'
+	    	}]
+	    });
+	} else {
+	    playerInstance.setup({
+	    	playlist: [{
+	        file: httpUrl1,
+	        image: imageUrl,
+            tracks: [{
+			    file: chaptersStr,
+			    kind:'chapters'
+			  }],
+	        autostart: 'false'
+	    	}],
+	    	width: "100%",
+			aspectratio: "16:9"
+	    });
+	    
+	    jQuery('.reloadMovie').on('click', function(){
+	        playerInstance.remove();
+	        playerInstance.setup({
+	        	playlist: [{
+	            file: httpUrl2,
+	            image: imageUrl,
+	            tracks: [{
+				    file: chaptersStr,
+				    kind:'chapters'
+				  }],
+	            primary: 'html5',
+	            autostart: 'false',
+	            controls: '1'
+	        	}],
+	    	width: "100%",
+			aspectratio: "16:9"
+	        });
+	    })
+
+	    var trident = !!navigator.userAgent.match(/Trident\/7.0/);
+	    var net = !!navigator.userAgent.match(/.NET4.0E/);
+	    var IE11 = trident && net;
+	    var IEold = ( navigator.userAgent.match(/MSIE/i) ? true : false );
+	    var theVideo;
+	    jwplayer().on('ready', function(){
+	        theVideo = document.querySelector('video');
+	        theVideo.defaultPlaybackRate = 1.0;
+	        theVideo.playbackRate = 1.0;
+	        if (jwplayer().getRenderingMode() == "flash"){
+	            return;
+	        }
+	    });
+	}
+
+</script>

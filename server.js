@@ -3,6 +3,9 @@
 var express  = require('express');
 var fs = require("fs")
 
+var jwt = require('express-jwt');
+var jwt_sign = require('jsonwebtoken');
+
 var https = require('https');
 var http = require('http');
 var privateKey  = fs.readFileSync('./../../../etc/pki/tls/private/localhost.key', 'utf8');
@@ -43,6 +46,12 @@ app.all('/', function(req, res, next) {
   next();
  });
 
+appHttp.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+ });
+
 // Ignore self signed certificate
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -73,6 +82,13 @@ app.use(bodyParser.json());                                     // parse applica
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
 
+appHttp.use(express.static(__dirname + '/public')); 
+appHttp.use(morgan('dev'));                                         // log every request to the console
+appHttp.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
+appHttp.use(bodyParser.json());                                     // parse application/json
+appHttp.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
+appHttp.use(methodOverride());
+
 // define model =================
 var Subtitles = mongoose.model('Subtitles', {
     text : String
@@ -86,7 +102,7 @@ app.post('/api/auth', function(req, res) {
     var userPass = req.body.userPass;
     var sendResponse = true;
 
-    var resp = {auth: false, mail: "", fullName: ""};
+    var resp = {auth: false, mail: "", fullName: "", token: ""};
 
     if (!userId || !userPass){
 
@@ -127,6 +143,8 @@ app.post('/api/auth', function(req, res) {
                resp.auth = true;
                resp.mail = entry.object.mail;
                resp.fullName = entry.object.fullName;
+               resp.token = getUserSessionToken({mail: resp.mail, fullname : resp.fullName, userId:userId})
+               console.log("response: " +  JSON.stringify(resp));
                if (sendResponse) {
                 res.send(resp);
                 sendResponse = false;
@@ -158,9 +176,10 @@ app.post('/api/auth', function(req, res) {
 });
 
 
-app.post('/api/saveSrtFileForUser', function(req, res) {
-	var userId = req.body.userId;
-  var videoId = req.body.videoId
+appHttp.post('/api/saveSrtFileForUser', jwt({secret : getJWTSecret()}), function(req, res) {
+  console.log("userId: " + req.user.userId);
+	var userId = req.user.userId;
+  var videoId = req.body.videoId;
 
   var dir = fileSystemDir + getOutputFilePath(userId, videoId);
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
@@ -244,7 +263,7 @@ app.post('/api/saveSrtFileForUser', function(req, res) {
 
 });
 
-app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
+appHttp.get('/api/getLatestSubtitles/:hashCode', function(req, res){
   var hashCode = req.params.hashCode;
   var fileName;
 
@@ -279,7 +298,7 @@ app.get('/api/getLatestSubtitles/:hashCode', function(req, res){
   console.log('starting download');
 });
 
-app.get('/api/getLatestJsonSub/:videoId', function(req, res){
+appHttp.get('/api/getLatestJsonSub/:videoId', function(req, res){
   var videoId = req.params.videoId;
   var gitVideoDir = fileSystemDir + getOutputVideoFolder(videoId);
   var latestJsonFilePath = path.join(gitVideoDir, videoId + "_latest.json");
@@ -315,9 +334,9 @@ console.log("HTTP App listening on port " + portHttp);
 
 
 // set up a route to redirect http to https
-appHttp.get('*',function(req,res){  
-    res.redirect('https://lool.tau.ac.il'+req.url)
-})
+// appHttp.get('*',function(req,res) {
+//     res.redirect('https://lool.tau.ac.il'+req.url)
+// })
 
 
 cmd.get(
@@ -588,3 +607,15 @@ function fileExists(filePath)
         return false;
     }
 }
+
+function getUserSessionToken(usr){
+  var cert = getJWTSecret();
+
+  var currUsr = usr == null ? {} : usr;
+  return jwt_sign.sign(currUsr, cert,{expiresIn: 60*60*24});
+}
+
+function getJWTSecret(){
+  return "mySecret";
+}
+    
