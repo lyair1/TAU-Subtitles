@@ -71,28 +71,24 @@
 				         	Your Hash Is: {{latestHash}} - <a href="/api/getLatestSubtitles/{{latestHash}}">Download Srt</a> 
 				         	<a href="/api/getLatestSubtitles/{{latestHash}}_plain">Download Plain txt</a>
 				        </div>
-
+				        <div class="alert alert-info padding-left-right padding-up-down"><p>
+					        <table>
+				       				<tr>
+				       					<td width="80%"><b>Loop</b></td>
+				       					<td align="middle"><b>{{loop? "Yes" : "No"}}</b></td>
+				       				</tr>
+				       				<tr>
+				       					<td width="80%"><b>Video Play Speed:</b></td>
+				       					<td align="middle"><b>{{speed}}</b></td>
+				       				</tr>
+				       				<tr>
+				       					<td width="80%"><b>Jump Length (Seconds):</b></td>
+				       					<td align="middle"><b> <input class="form-control col-sm-1" type="number" style="text-align:center;" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required></b></td>
+				       				</tr>
+					       	</table>
+				       </div>
 				        <div class="padding-left-right padding-up-down">
 				        	<p>
-				        	<div class="medium-width">
-					        	<label class="switch-light switch-candy" onclick="">
-			  						<input type="checkbox" id="loop">
-									  <strong>
-									    <b>   Loop</b>
-									  </strong>
-										  <span>
-										    <span>Off</span>
-										    <span>On</span>
-										    <a></a>
-										  </span>
-								</label>
-							</div>
-				        	 <b>Video Play Speed:</b> {{speed}}
-				        	 <br>
-				        	 <b>Jump Length (Seconds):</b> 
-				        	 <input class="form-control small-width" type="number" style="text-align:center;" name="inputJumpLength" ng-model="jumpLength" min="5" max="600" required>
-			       		</p></div>
-			       		<div class="padding-left-right padding-up-down">
 				       		<div class="alert alert-info padding-left-right padding-up-down"><p>
 				       			<table>
 				       				<tr>

@@ -105,6 +105,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 	$scope.failedToAuthenticate = false;
 
 	$scope.subtitles = [];
+	$scope.loop = false;
 
 	$scope.deletedIds = {};
 	$scope.addedIds = {};
@@ -267,7 +268,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 		if (caseNum == 6) {
 			// changing loop
-			document.getElementById("loop").checked ^= true;
+			$scope.loop ^= true;
 		}
 
 		if (caseNum == 7) {
@@ -332,7 +333,7 @@ app.controller('subtitleTableController',function subtitleTableController($scope
 
 	$scope.handleLoop = function(i){
 		jwplayer().onTime(function (event) {
-			if(document.getElementById("loop").checked && $scope.validSubtitle($scope.subtitles[i]).length == 0){
+			if($scope.loop && $scope.validSubtitle($scope.subtitles[i]).length == 0){
 				if(event.position > $scope.subtitles[i].endTime && event.position < $scope.subtitles[i].endTime + 0.5){
 					if($scope.currentIndex == i){
 						jwplayer().seek($scope.subtitles[i].startTime);	
