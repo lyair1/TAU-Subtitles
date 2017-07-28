@@ -16,3 +16,9 @@ Tau-Subtitles
 ## Helpfull links
 
 - [JWPlayer JS API] (https://developer.jwplayer.com/jw-player/docs/developer-guide/api/javascript_api_reference)
+
+## Screen Shots:
+
+<p align="center">
+  <img src ="/ReadmeAssets/ScreenShot.png" />
+</p>
