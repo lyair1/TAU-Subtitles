@@ -1,4 +1,4 @@
-Tau-Subtitles
+Subtitles editor web client
 
 ## Requirements
 
